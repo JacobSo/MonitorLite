@@ -3,7 +3,7 @@
  */
 'use strict';
 import App from '../Application';
-
+//api:https://www.kancloud.cn/colink/cloud/618814
 let BASE_URL = 'http://123.207.15.167:9983/';
 
 let newFetch = function (input, opts) {
