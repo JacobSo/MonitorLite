@@ -32,6 +32,7 @@ export default class DevicesPager extends Component {
             chaos: [],
             items: [],
             topItem: {},
+            checkMap: [],
         };
     }
 
@@ -39,11 +40,10 @@ export default class DevicesPager extends Component {
         // console.log(this.props.nav.state.params.data);
         this.state.items = this.props.nav.state.params.data;
         this.state.chaos = JSON.parse(JSON.stringify(this.props.nav.state.params.data));
-        this.init();
+        this.init(true);
         this.interval = setInterval(() => {
-            console.log('123');
             this.feed()
-        }, 1000*15);
+        }, 1000 * 15);
 
     }
 
@@ -51,17 +51,23 @@ export default class DevicesPager extends Component {
         this.interval && clearInterval(this.interval);
     }
 
-    init() {
+    init(isFirst) {
         let topIndex = 0;
         this.state.items.map((data, i) => {
             if (data.id === 0) {
                 this.state.topItem = data;
                 topIndex = i;
             } else {
-                this.state.items[i]['data'] = data.items;
+                if (isFirst) {
+                    this.state.checkMap.push(false);
+                }
+
+
+                this.state.items[i]['data'] = this.state.checkMap[i - 1] ? data.items : [];//
+                this.state.items[i]['isShow'] = this.state.checkMap[i - 1];
                 this.state.items[i]['key'] = i;
-                this.state.items[i]['isShow'] = 'off';
                 delete this.state.items[i]['items'];
+
             }
         });
         this.state.items.splice(topIndex, 1);
@@ -70,20 +76,18 @@ export default class DevicesPager extends Component {
         /*        console.log(this.state.chaos);
          console.log(this.state.items);
          console.log(this.state.topItem);*/
+        console.log('init:' + this.state.checkMap)
+
     }
 
     show(data) {
-        //  console.log(data)
-        if (data.isShow === 'off') {
-            this.state.items[data.key - 1]['data'] = this.state.chaos[data.key - 1].items;
-            this.state.items[data.key - 1]['isShow'] = 'on';
-            this.setState({});
-        } else {
-            this.state.items[data.key - 1]['data'] = [];
-            this.state.items[data.key - 1]['isShow'] = 'off';
-            this.setState({});
-        }
+        this.state.items[data.key - 1]['isShow'] = !data.isShow;
+        this.state.items[data.key - 1]['data'] = (data.isShow ? this.state.chaos[data.key - 1].items : []);
+        this.state.checkMap[data.key - 1] = !this.state.checkMap[data.key - 1]
+        this.setState({});
 
+        console.log('show:' + this.state.checkMap)
+        console.log('show:' + this.state.items[data.key - 1]['isShow'])
     }
 
 
@@ -95,7 +99,7 @@ export default class DevicesPager extends Component {
                 if (responseJson.Code === 0 || responseJson.Code === '0') {
                     this.state.items = responseJson.info;
                     this.state.chaos = JSON.parse(JSON.stringify(responseJson.info));
-                    this.init();
+                    this.init(false);
                 } else {
                     SnackBar.show(responseJson.Msg);
                 }
@@ -107,30 +111,32 @@ export default class DevicesPager extends Component {
 
     header() {
         return <View style={{
-            width: width - 32,
             margin: 16,
-            padding: 16,
             elevation: 5,
             backgroundColor: 'white',
-            flexDirection: 'row',
             borderRadius: 10,
-            justifyContent: 'space-between',
-            alignItems: 'center'
         }}>
-            <Text style={{fontSize: 18, color: 'black'}}>{this.state.topItem.name}</Text>
-            <Text style={{
-                backgroundColor: ColorGroup.stateColor[this.state.topItem.state],
-                color: 'white',
-                borderRadius: 10,
-                padding: 5
-            }}>{TextGroup.stateText[this.state.topItem.state]}</Text>
+            <View style={{padding: 16, width: width - 32, flexDirection: 'row', justifyContent: 'space-between',}}>
+                <Text style={{fontSize: 18, color: 'black'}}>{this.state.topItem.name}</Text>
+                <Text style={{
+                    backgroundColor: ColorGroup.stateColor[this.state.topItem.state],
+                    color: 'white',
+                    borderRadius: 10,
+                    padding: 5
+                }}>{TextGroup.stateText[this.state.topItem.state]}</Text>
+            </View>
+            <View style={{flexDirection:'row-reverse',width:width-32,}}>
+                <Text style={{padding:16,color:Color.colorBlue}}>发送命令</Text>
+                <Text style={{padding:16}}>实时警报</Text>
+                <Text style={{padding:16}}>查询警报</Text>
+            </View>
+
         </View>
     }
 
     parent(parent) {
-        console.log(parent)
+        // console.log(parent)
         return <TouchableOpacity
-
             onPress={() => {
                 this.show(parent.section)
             }}>
@@ -143,7 +149,7 @@ export default class DevicesPager extends Component {
                     backgroundColor: ColorGroup.stateColor[parent.section.state]
                 }}/>
                 <Text style={{
-                    color: Color.colorBlue,
+                    color: Color.content,
                     padding: 16,
                     fontSize: 15,
                     /*   borderTopWidth: 1,
