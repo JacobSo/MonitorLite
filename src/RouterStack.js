@@ -7,10 +7,12 @@
 
 import React from 'react';
 import {StackNavigator,} from 'react-navigation';
-import {Platform, Dimensions, View, StatusBar,Linking} from 'react-native';
+import {Platform, Dimensions, View, StatusBar, Linking} from 'react-native';
 import App from "../App";
 import Color from "./utils/Color"
-import Login from "./ui/Login";
+import Login from "./ui/LoginPager";
+import MainPager from "./ui/MainPager";
+import WebViewPager from "./ui/WebViewPager";
 
 const {width, height} = Dimensions.get('window');
 
@@ -37,21 +39,37 @@ _statusBar = (color, barSet) => {
             })()}
             <StatusBar
                 backgroundColor={color}
-                barStyle={barSet ? barSet : "dark-content"}
+                barStyle={barSet}
                 networkActivityIndicatorVisible={true}
                 hidden={false}/></View>)
 };
 
 
 const LauncherScreen = ({navigation}) => _renderScreen(<View
-    style={{height: height}}>{_statusBar(Color.background)}<Login {...navigation.state.params}
-                                                                     nav={navigation}/></View>);
+    style={{height: height}}>{_statusBar(Color.background,"dark-content")}<Login {...navigation.state.params}
+                                                                  nav={navigation}/></View>);
 
+
+const MainScreen = ({navigation}) => _renderScreen(<View
+    style={{height: height}}>{_statusBar(Color.colorBlueDark,"light-content")}<MainPager {...navigation.state.params}
+                                                                  nav={navigation}/></View>);
+
+const WebScreen = ({navigation}) => _renderScreen(<View
+    style={{height: height}}>{_statusBar(Color.colorBlueDark,"light-content")}<WebViewPager {...navigation.state.params}
+                                                                  nav={navigation}/></View>);
 
 const RouterStack = StackNavigator({
         launcher: {
             screen: LauncherScreen,
-            path:'launcher'
+            path: 'launcher'
+        },
+        main: {
+            screen: MainScreen,
+            path: 'main'
+        },
+        web: {
+            screen: WebScreen,
+            path: 'web'
         },
     },
     {

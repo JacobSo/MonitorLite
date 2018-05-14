@@ -37,9 +37,9 @@ export  default  class ApiService {
             })
     }
 
-    static getRequest(method, param) {
-        let temp = BASE_URL + method;
-        console.log('method:' + temp + '\nparam:' + param);
+    static getRequest(method, url) {
+        let temp ='http://'+ url +':9983/'+ method;
+        console.log('method:' + temp );
 
         return newFetch(temp, {
             method: 'GET',
@@ -58,19 +58,19 @@ export  default  class ApiService {
     }
 
 
-    static login(user, pwd, subId) {
+    static login(base,user, pwd, subId) {
         let method = 'login?user=' + user + '&pwd=' + pwd + '&subid=' + subId
-        return this.getRequest(method, null);
+        return this.getRequest(method, base);
     }
 
-    static getNotice(id, subId) {
-        let method = 'getnotice?id=' + id + '&subid=' + subId
-        return this.getRequest(method, null);
+    static getNotice(id) {
+        let method = 'getnotice?id=' + id + '&subid=' + App.platformId
+        return this.getRequest(method, App.baseUrl);
     }
 
-    static getLive(subId) {
-        let method = 'getlive?subid=' + subId
-        return this.getRequest(method, null);
+    static getLive() {
+        let method = 'getlive?subid=' + App.platformId
+        return this.getRequest(method, App.baseUrl);
     }
 
     static findAlarm(user, subId, start, end, areaId, alarmId, type, startId, max) {
@@ -83,17 +83,17 @@ export  default  class ApiService {
             '&type=' + type +
             '&startid=' + startId +
             '&max=' + max
-        return this.getRequest(method, null);
+        return this.getRequest(method, App.baseUrl);
     }
 
     static sendCmd(user, subId, areaId, alarmId, action) {
         let method = 'login?user=' + user + '&subid=' + subId + '&areaid=' + areaId + '&alarmid=' + alarmId + '&action=' + action
-        return this.getRequest(method, null);
+        return this.getRequest(method, App.baseUrl);
     }
 
     static getPic(subId, areaId, alarmId, id, ip) {
         let method = 'getpic?subid=' + subId + subId + '&areaid=' + areaId + '&alarmid=' + alarmId + '&id=' + id + '&ip=' + ip
-        return this.getRequest(method, null);
+        return this.getRequest(method, App.baseUrl);
     }
 
 }

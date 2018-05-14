@@ -7,9 +7,13 @@
     "test": "jest"
   },
   "dependencies": {
+    "prop-types": "^15.6.1",
     "react": "16.3.1",
     "react-native": "0.55.4",
+    "react-native-loading-spinner-overlay": "^0.5.2",
+    "react-native-scrollable-tab-view": "^0.8.0",
     "react-native-snackbar-dialog": "^1.4.1",
+    "react-native-textinput-effects": "^0.4.2",
     "react-navigation": "^2.0.1"
   },
   "devDependencies": {

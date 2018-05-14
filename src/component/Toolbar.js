@@ -35,7 +35,7 @@ export default class Toolbar extends Component {
                 <TouchableOpacity onPress={this.props.functionArray[0]}
                                   style={{paddingTop: 16, paddingRight: 32, paddingBottom: 16}}>
                     <Image style={styles.home}
-                           source={ this.props.isWhiteBar?require('../../drawable/action_back_black.png'):require('../../drawable/action_back.png')}/></TouchableOpacity>)
+                           source={ this.props.isWhiteBar?require('../drawable/action_back_black.png'):require('../drawable/action_back.png')}/></TouchableOpacity>)
         }
     }
 
@@ -45,7 +45,7 @@ export default class Toolbar extends Component {
                 <TouchableOpacity onPress={this.props.drawerFunc}
                                   style={{paddingTop: 16, paddingRight: 32, paddingBottom: 16}}>
                     <Image style={styles.home}
-                           source={ require('../../drawable/draw_menu.png')}/></TouchableOpacity>)
+                           source={ require('../drawable/draw_menu.png')}/></TouchableOpacity>)
         }
     }
 
