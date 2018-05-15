@@ -14,13 +14,17 @@ import {
 } from 'react-native';
 import ApiService from "../api/ApiService";
 import Loading from 'react-native-loading-spinner-overlay';
-import Hoshi from "react-native-textinput-effects/lib/Hoshi";
+import App from "../Application";
 import Color from "../utils/Color"
 import SnackBar from 'react-native-snackbar-dialog'
 import Toolbar from "../component/Toolbar";
 import RefreshEmptyView from "../component/RefreshEmptyView";
 import * as ColorGroup from "../utils/ColorGroup";
 import * as TextGroup from "../utils/TextGroup";
+
+import DialogAndroid from 'react-native-dialogs';
+import {alarmText} from "../utils/TextGroup";
+
 
 const {width, height} = Dimensions.get('window');
 export default class DevicesPager extends Component {
@@ -32,6 +36,7 @@ export default class DevicesPager extends Component {
             chaos: [],
             items: [],
             topItem: {},
+            alarmItems: [],
             checkMap: [],
         };
     }
@@ -41,14 +46,15 @@ export default class DevicesPager extends Component {
         this.state.items = this.props.nav.state.params.data;
         this.state.chaos = JSON.parse(JSON.stringify(this.props.nav.state.params.data));
         this.init(true);
-        this.interval = setInterval(() => {
-            this.feed()
-        }, 1000 * 15);
+        this.feed()
+        /*    this.interval = setInterval(() => {
+         this.feed()
+         }, 1000 * 15);*/
 
     }
 
     componentWillUnmount() {
-        this.interval && clearInterval(this.interval);
+        //   this.interval && clearInterval(this.interval);
     }
 
     init(isFirst) {
@@ -61,8 +67,6 @@ export default class DevicesPager extends Component {
                 if (isFirst) {
                     this.state.checkMap.push(false);
                 }
-
-
                 this.state.items[i]['data'] = this.state.checkMap[i - 1] ? data.items : [];//
                 this.state.items[i]['isShow'] = this.state.checkMap[i - 1];
                 this.state.items[i]['key'] = i;
@@ -75,8 +79,9 @@ export default class DevicesPager extends Component {
         this.setState({})
         /*        console.log(this.state.chaos);
          console.log(this.state.items);
-         console.log(this.state.topItem);*/
-        console.log('init:' + this.state.checkMap)
+         */
+        console.log(this.state.items[0].data);
+        //  console.log('init:' + this.state.checkMap)
 
     }
 
@@ -90,6 +95,59 @@ export default class DevicesPager extends Component {
         console.log('show:' + this.state.items[data.key - 1]['isShow'])
     }
 
+    dialog(data) {
+        console.log(data)
+        let rightGroup = []
+        if (App.noset === 1)
+            rightGroup.push('撤防')
+        if (App.set === 1)
+            rightGroup.push('布防')
+        if (data.section && data.item) {
+            if (data.item.type === 1 || data.item.type === 2) {
+                rightGroup.push('高压布防')
+                rightGroup.push('低压布防')
+            } else if (data.item.type === 3) {
+                rightGroup.push('张力高压布防')
+                rightGroup.push('张力布防')
+            }
+        } else {
+            if(data.section){
+                if (data.section.type === 1) {
+                    rightGroup.push('高压布防')
+                    rightGroup.push('低压布防')
+                } else if (data.section.type === 3) {
+                    rightGroup.push('张力高压布防')
+                    rightGroup.push('张力布防')
+                }
+            }else{
+                if (data.type === 1) {
+                    rightGroup.push('高压布防')
+                    rightGroup.push('低压布防')
+                } else if (data.type === 3) {
+                    rightGroup.push('张力高压布防')
+                    rightGroup.push('张力布防')
+                }
+            }
+
+        }
+        if (App.reset === 1)
+            rightGroup.push('复位')
+
+
+        let dialog = new DialogAndroid();
+        dialog.set({
+            title: '发送命令',
+            content: !data.item ? ('向【' + (data.section ? data.section.name : data.name) + '】发送指令') :
+                ('向【' + data.section.name + '】下的【' + data.item.name + '】发送指令'),
+            items: rightGroup,
+            positiveText: '取消',
+            positiveColor: Color.colorBlue,
+            itemsCallback: (index, name) => {
+                this.command(data, index)
+            }
+        });
+        dialog.show();
+    }
 
     feed() {
         this.setState({isLoading: true});
@@ -99,7 +157,40 @@ export default class DevicesPager extends Component {
                 if (responseJson.Code === 0 || responseJson.Code === '0') {
                     this.state.items = responseJson.info;
                     this.state.chaos = JSON.parse(JSON.stringify(responseJson.info));
+                    this.state.alarmItems = responseJson.alarm;
+                    if (this.state.alarmItems) {
+                        this.state.alarmItems.map((data) => {
+                            this.state.chaos.map((item) => {
+                                if (data.areaid === item.id) {
+                                    item.items.map((child) => {
+                                        if (data.alarmid === child.id) {
+                                            child.alarm = data;
+                                        }
+                                    })
+                                }
+                            })
+
+                        })
+                    }
                     this.init(false);
+
+                } else {
+                    SnackBar.show(responseJson.Msg);
+                }
+            }).catch((error) => {
+            this.setState({isLoading: false})
+            console.log(error)
+        }).done()
+    }
+
+
+    command(data, action) {
+        this.setState({isLoading: true});
+        ApiService.sendCmd(data.section ? data.section.id : 0, data.item ? data.item.id : 0, action)
+            .then((responseJson) => {
+                this.setState({isLoading: false})
+                if (responseJson.Code === 0 || responseJson.Code === '0') {
+                    SnackBar.show('操作成功')
                 } else {
                     SnackBar.show(responseJson.Msg);
                 }
@@ -125,71 +216,122 @@ export default class DevicesPager extends Component {
                     padding: 5
                 }}>{TextGroup.stateText[this.state.topItem.state]}</Text>
             </View>
-            <View style={{flexDirection:'row-reverse',width:width-32,}}>
-                <Text style={{padding:16,color:Color.colorBlue}}>发送命令</Text>
-                <Text style={{padding:16}}>实时警报</Text>
-                <Text style={{padding:16}}>查询警报</Text>
+            <View style={{flexDirection: 'row-reverse', width: width - 32,}}>
+                <TouchableOpacity onPress={() => {
+                    this.dialog(this.state.topItem)
+                }}>
+                    <Text style={{padding: 16, color: Color.colorBlue}}>发送命令</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => {
+                        this.props.nav.navigate('alarm', {
+                            data: this.state.alarmItems
+                        })
+                    }}>
+                    <Text style={{padding: 16}}>实时警报</Text>
+                </TouchableOpacity>
             </View>
 
         </View>
     }
 
     parent(parent) {
-        // console.log(parent)
+        console.log(parent)
         return <TouchableOpacity
             onPress={() => {
                 this.show(parent.section)
-            }}>
-            <View style={{backgroundColor: Color.line, height: 1, width: width}}/>
-            <View style={{backgroundColor: 'white', flexDirection: 'row', alignItems: 'center'}}>
-                <View style={{
-                    width: 10,
-                    height: 55,
-                    elevation: 5,
-                    backgroundColor: ColorGroup.stateColor[parent.section.state]
-                }}/>
-                <Text style={{
-                    color: Color.content,
-                    padding: 16,
-                    fontSize: 15,
-                    /*   borderTopWidth: 1,
-                     borderTopColor: Color.line*/
-                }}>{parent.section.name}</Text>
+            }}
+        >
+            <View>
+                <View style={{backgroundColor: Color.line, height: 1, width: width}}/>
+                <View style={{backgroundColor: 'white', flexDirection: 'row', alignItems: 'center'}}>
+                    <View style={{
+                        width: 10,
+                        height: 55,
+                        elevation: 5,
+                        backgroundColor: ColorGroup.stateColor[parent.section.state]
+                    }}/>
+                    <Text style={{
+                        color: Color.content,
+                        padding: 16,
+                        fontSize: 15,
+                        /*   borderTopWidth: 1,
+                         borderTopColor: Color.line*/
+                    }}>{parent.section.name}</Text>
 
+                </View>
+                <View style={{backgroundColor: Color.line, height: 1, width: width}}/>
             </View>
-            <View style={{backgroundColor: Color.line, height: 1, width: width}}/>
+            <TouchableOpacity
+                style={{position: 'absolute', right: 0, height: 55, alignItems: 'center', justifyContent: 'center'}}
+                onPress={() => {
+                    this.dialog(parent)
+                }
+                }>
+                <Text style={{color: Color.colorBlue, padding: 16}}>指令</Text>
+            </TouchableOpacity>
         </TouchableOpacity>
     }
 
     child(child) {
+        console.log(child)
         return <TouchableOpacity
-            style={{backgroundColor: 'white', flexDirection: 'row', alignItems: 'center'}}
+            style={{backgroundColor: 'white',}}
             onPress={
                 () => {
-
+                    this.dialog(child)
                 }
             }>
-            <View style={{
-                width: 15,
-                height: 15,
-                borderRadius: 10,
-                elevation: 5,
-                marginLeft: 32,
-                backgroundColor: ColorGroup.stateColor[child.item.state]
-            }}/>
-            <Text style={{
-                color: Color.content,
-                padding: 16,
-                marginLeft: 16
-            }}>{child.item.name}</Text>
-            <Text>{child.item.type ? TextGroup.typeText[child.item.type] : ''}</Text>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <View style={{
+                    width: 15,
+                    height: 15,
+                    borderRadius: 10,
+                    elevation: 5,
+                    marginLeft: 16,
+                    backgroundColor: ColorGroup.stateColor[child.item.state]
+                }}/>
+                <View style={{
+                    padding: 16,
+                    marginLeft: 16
+                }}>
+                    <View style={{flexDirection: 'row', alignItems: 'flex-end', marginBottom: 10}}>
+                        <Text style={{color: 'black', fontSize: 18, marginRight: 16}}>{child.item.name}</Text>
+                        <Text>{child.item.type ? TextGroup.typeText[child.item.type] : ''}</Text>
+                    </View>
+                    <Text>{child.item.memo}</Text>
+                </View>
 
+            </View>
+            {
+                (() => {
+                    console.log(child.item)
+                    if (child.item.alarm) {
+                        console.log('run')
+
+                        return <View style={{flexDirection: 'row', alignItems: 'center', paddingLeft: 32 + 16}}>
+                            {/* <Image style={{width:25,height:25,margin:5}} source={require('../drawable/warning.png')}/>*/}
+
+                            <Text style={{
+                                color: '#F44336',
+                                backgroundColor: '#FFCDD2',
+                                marginLeft: 16,
+                                padding: 5,
+                                borderRadius: 10
+                            }}>警报</Text>
+                            <Text style={{marginLeft: 16}}>{child.item.alarm.alarminfo}</Text>
+                            <Text style={{marginLeft: 16}}>{alarmText[child.item.alarm.type]}</Text>
+                        </View>
+                    }
+                })()
+            }
         </TouchableOpacity>
     }
 
     render() {
         return (
             <View style={styles.container}>
+
                 {
                     (() => {
                         if (this.state.items.length === 0) {
@@ -217,8 +359,9 @@ export default class DevicesPager extends Component {
 
                     })()
                 }
-            </View>
+                <Loading visible={this.state.isLoading}/>
 
+            </View>
         );
     }
 }

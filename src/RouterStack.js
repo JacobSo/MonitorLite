@@ -13,6 +13,8 @@ import Color from "./utils/Color"
 import Login from "./ui/LoginPager";
 import MainPager from "./ui/MainPager";
 import WebViewPager from "./ui/WebViewPager";
+import AlarmPager from "./ui/AlarmPager";
+import NotificationPager from "./ui/NotifactionPager";
 
 const {width, height} = Dimensions.get('window');
 
@@ -57,6 +59,10 @@ const MainScreen = ({navigation}) => _renderScreen(<View
 const WebScreen = ({navigation}) => _renderScreen(<View
     style={{height: height}}>{_statusBar(Color.colorBlueDark,"light-content")}<WebViewPager {...navigation.state.params}
                                                                   nav={navigation}/></View>);
+const AlarmScreen = ({navigation}) => _renderScreen(<View
+    style={{height: height}}>{_statusBar(Color.colorBlueDark,"light-content")}<AlarmPager {...navigation.state.params}
+                                                                  nav={navigation}/></View>);
+
 
 const RouterStack = StackNavigator({
         launcher: {
@@ -70,6 +76,10 @@ const RouterStack = StackNavigator({
         web: {
             screen: WebScreen,
             path: 'web'
+        },
+        alarm: {
+            screen: AlarmScreen,
+            path: 'alarm'
         },
     },
     {

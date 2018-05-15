@@ -9,6 +9,16 @@ export const stateText = [
     '掉线'
 ];
 export const typeText = [
+    '高压电网',
+    '脉冲围栏',
+    '脉冲围栏',
+    '张力围栏',
+    '市电模块',
+    '地址模块',
+];
+
+
+export const alarmText = [
     '布防正常',
     '撤防正常',
     '防区掉线',

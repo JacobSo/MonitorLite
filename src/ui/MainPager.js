@@ -22,8 +22,12 @@ import DevicesPager from "./DevicesPager";
 import NotificationPager from "./NotifactionPager";
 import App from '../Application'
 import LoginPager from "./LoginPager";
+import PopupDialog, { SlideAnimation } from 'react-native-popup-dialog';
 
 const {width, height} = Dimensions.get('window');
+const slideAnimation = new SlideAnimation({
+    slideFrom: 'bottom',
+});
 export default class MainPager extends Component {
 
     constructor(props) {
@@ -38,26 +42,6 @@ export default class MainPager extends Component {
     }
 
     componentDidMount() {
-    }
-
-    login() {
-        if (this.state.baseUrl === 0 || this.state.user.length === 0 || this.state.pwd.length === 0 || this.state.platformId.length === 0) {
-            SnackBar.show("信息不能为空");
-            return
-        }
-        this.setState({isLoading: true});
-        ApiService.login(this.state.baseUrl, this.state.user, this.state.pwd, this.state.platformId)
-            .then((responseJson) => {
-                this.setState({isLoading: false})
-                if (responseJson.code === 0) {
-
-                } else {
-                    SnackBar.show(responseJson.Msg);
-                }
-            }).catch((error) => {
-            this.setState({isLoading: false})
-            console.log(error)
-        }).done()
     }
 
     render() {
@@ -75,6 +59,8 @@ export default class MainPager extends Component {
                         () => {
                             this.props.nav.goBack(null)
                         },
+                        ()=>{
+                        }
                     ]}/>
                 <ScrollableTabView
                     initialPage={0}
@@ -87,6 +73,7 @@ export default class MainPager extends Component {
                     <DevicesPager tabLabel='设备' nav={this.props.nav}/>
                     <NotificationPager tabLabel='通知'  nav={this.props.nav}/>
                 </ScrollableTabView>
+
             </View>
 
         );

@@ -12,7 +12,7 @@ import {
     Text,
     View, TouchableOpacity, KeyboardAvoidingView, ScrollView
 } from 'react-native';
-import {NavigationActions,StackActions} from 'react-navigation';
+import {NavigationActions, StackActions} from 'react-navigation';
 import ApiService from "../api/ApiService";
 import Loading from 'react-native-loading-spinner-overlay';
 import Hoshi from "react-native-textinput-effects/lib/Hoshi";
@@ -37,34 +37,48 @@ export default class LoginPager extends Component {
 
     componentDidMount() {
         /*setTimeout(
-            () => { this.setState({isWelcome:false})},
-            2000
-        )*/
+         () => { this.setState({isWelcome:false})},
+         2000
+         )*/
     }
 
     login() {
         if (this.state.baseUrl === 0 || this.state.user.length === 0 || this.state.pwd.length === 0 || this.state.platformId.length === 0) {
             SnackBar.show("信息不能为空");
+            parse
             return
         }
         this.setState({isLoading: true});
         ApiService.login(this.state.baseUrl, this.state.user, this.state.pwd, this.state.platformId)
             .then((responseJson) => {
                 this.setState({isLoading: false})
-                if (responseJson.Code === 0||responseJson.Code==="0") {
-                    App.saveAccount(this.state.user,this.state.pwd,this.state.platformId,this.state.baseUrl);
+                if (responseJson.Code === 0 || responseJson.Code === "0") {
+                    App.saveAccount(
+                        this.state.user,
+                        this.state.pwd,
+                        this.state.platformId,
+                        this.state.baseUrl,
+                        responseJson.Right,
+                        responseJson.set,
+                        responseJson.noset,
+                        responseJson.reset,
+
+
+                    );
                     const resetAction = StackActions.reset({
                         index: 0,
                         actions: [
-                            NavigationActions.navigate({routeName: 'main',  params:{
-                                data:responseJson.dev
-                            }})
+                            NavigationActions.navigate({
+                                routeName: 'main', params: {
+                                    data: responseJson.dev
+                                }
+                            })
                         ],
 
 
                     });
                     this.props.nav.dispatch(resetAction)
-               //   this.props.nav.navigate('main')
+                    //   this.props.nav.navigate('main')
                 } else {
                     SnackBar.show(responseJson.Msg);
                 }
@@ -78,10 +92,11 @@ export default class LoginPager extends Component {
         return (
             <KeyboardAvoidingView behavior={'padding'}>
                 {
-                    (()=>{
-                        if(this.state.isWelcome){
-                            return <Image source={require('../drawable/first.png')} style={{width:width,height:height}}/>
-                        }else{
+                    (() => {
+                        if (this.state.isWelcome) {
+                            return <Image source={require('../drawable/first.png')}
+                                          style={{width: width, height: height}}/>
+                        } else {
                             return null
                         }
                     })()

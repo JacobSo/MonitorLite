@@ -10,6 +10,10 @@ export  default  class Application extends Component {
     static pwd = '';//
     static platformId = '';//
     static baseUrl = '';//
+    static level = '';//
+    static set = '';//
+    static noset = '';//
+    static reset = '';//
 
     /*
 
@@ -41,6 +45,10 @@ export  default  class Application extends Component {
                     if (key === "pwd") this.pwd = value;
                     if (key === "platformId") this.platformId = value;
                     if (key === "baseUrl") this.baseUrl = value;
+                    if (key === "level") this.level = value;
+                    if (key === "set") this.set = value;
+                    if (key === "noset") this.noset = value;
+                    if (key === "reset") this.reset = value;
 
                 });
             }).then(callback).catch((err) => {
@@ -49,11 +57,15 @@ export  default  class Application extends Component {
         });
     }
 
-    static saveAccount(user, pwd, platformId,baseUrl) {
+    static saveAccount(user, pwd, platformId,baseUrl,level,right1,right2,right3) {
         this.user = user;
         this.pwd = pwd;
         this.platformId = platformId;
         this.baseUrl = baseUrl;
+        this.level = level;
+        this.set = right1;
+        this.noset = right2;
+        this.reset = right3;
 
         AsyncStorage.multiSet(
             [
@@ -61,6 +73,10 @@ export  default  class Application extends Component {
                 ['pwd', pwd + ""],
                 ['platformId', platformId + ""],
                 ['baseUrl', baseUrl + ""],
+                ['level', level + ""],
+                ['set', right1 + ""],
+                ['noset', right2 + ""],
+                ['reset', right3 + ""],
             ])
             .then((err) => {
                     console.log(err);

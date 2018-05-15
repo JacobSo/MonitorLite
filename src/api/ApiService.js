@@ -38,8 +38,8 @@ export  default  class ApiService {
     }
 
     static getRequest(method, url) {
-        let temp ='http://'+ url +':9983/'+ method;
-        console.log('method:' + temp );
+        let temp = 'http://' + url + ':9983/' + method;
+        console.log('method:' + temp);
 
         return newFetch(temp, {
             method: 'GET',
@@ -58,7 +58,7 @@ export  default  class ApiService {
     }
 
 
-    static login(base,user, pwd, subId) {
+    static login(base, user, pwd, subId) {
         let method = 'login?user=' + user + '&pwd=' + pwd + '&subid=' + subId
         return this.getRequest(method, base);
     }
@@ -73,21 +73,21 @@ export  default  class ApiService {
         return this.getRequest(method, App.baseUrl);
     }
 
-    static findAlarm(user, subId, start, end, areaId, alarmId, type, startId, max) {
+    static findAlarm(user, start, end, areaId, alarmId, type, startId, max) {
         let method = 'login?user=' + user +
-            '&subid=' + subId +
+            '&subid=' + App.platformId +
             '&start=' + start +
             '&end=' + end +
             '&areaId=' + areaId +
             '&alarmId=' + alarmId +
             '&type=' + type +
             '&startid=' + startId +
-            '&max=' + max
+            '&max=' + max;
         return this.getRequest(method, App.baseUrl);
     }
 
-    static sendCmd(user, subId, areaId, alarmId, action) {
-        let method = 'login?user=' + user + '&subid=' + subId + '&areaid=' + areaId + '&alarmid=' + alarmId + '&action=' + action
+    static sendCmd(areaId, alarmId, action) {
+        let method = 'login?user=' + App.user + '&subid=' + App.platformId + '&areaid=' + areaId + '&alarmid=' + alarmId + '&action=' + action
         return this.getRequest(method, App.baseUrl);
     }
 

@@ -14,33 +14,28 @@ import {
 } from 'react-native';
 import ApiService from "../api/ApiService";
 import Loading from 'react-native-loading-spinner-overlay';
-import Hoshi from "react-native-textinput-effects/lib/Hoshi";
+import ScrollableTabView, {DefaultTabBar,} from 'react-native-scrollable-tab-view';
 import Color from "../utils/Color"
 import SnackBar from 'react-native-snackbar-dialog'
 import Toolbar from "../component/Toolbar";
+import DevicesPager from "./DevicesPager";
+import NotificationPager from "./NotifactionPager";
+import App from '../Application'
+import LoginPager from "./LoginPager";
 import RefreshEmptyView from "../component/RefreshEmptyView";
 
 const {width, height} = Dimensions.get('window');
-export default class NotificationPager extends Component {
+export default class AlarmPager extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
             isRefreshing: false,
-            items: []
+            items:this.props.data
         };
     }
 
     componentDidMount() {
-        this.interval = setInterval(() => {
-            this.feed()
-        }, 1000 * 60 * 30);
-
-        this.feed()
-    }
-
-    componentWillUnmount() {
-        this.interval && clearInterval(this.interval);
     }
 
     feed() {
@@ -58,17 +53,29 @@ export default class NotificationPager extends Component {
             console.log(error)
         }).done()
     }
-
-
     render() {
         return (
             <View style={styles.container}>
+                <Toolbar
+                    elevation={5}
+                    title={["实时警报"]}
+                    color={Color.colorBlue}
+                    isHomeUp={false}
+                    isAction={true}
+                    isActionByText={false}
+                    actionArray={[require("../drawable/search.png")]}
+                    functionArray={[
+                        () => {
+                            this.props.nav.goBack(null)
+                        },
+                        ()=>{
+
+                        }
+                    ]}/>
                 {
                     (() => {
                         if (this.state.items.length === 0) {
-                            return <RefreshEmptyView isRefreshing={this.state.isRefreshing} onRefreshFunc={() => {
-                                this.feed()
-                            } }/>
+                            return <RefreshEmptyView isRefreshing={this.state.isRefreshing}/>
                         } else return <FlatList
                             horizontal={false}
                             numColumns={2}
@@ -76,16 +83,6 @@ export default class NotificationPager extends Component {
                             data={this.state.items}
                             extraData={this.state}
                             ListHeaderComponent={<View/>}
-                            refreshControl={
-                                <RefreshControl
-                                    refreshing={this.state.isRefreshing}
-                                    onRefresh={() => this.feed()}
-                                    tintColor={Color.colorBlueGrey}//ios
-                                    title="刷新中..."//ios
-                                    titleColor='white'
-                                    colors={[Color.colorBlue]}
-                                    progressBackgroundColor="white"
-                                />}
                             renderItem={({item, index}) => <TouchableOpacity
                                 style={{
                                     backgroundColor: 'white',
@@ -95,21 +92,16 @@ export default class NotificationPager extends Component {
                                     width: width - 32
                                 }}
                                 onPress={() => {
-                                    this.props.nav.navigate('web', {
-                                        title: item.title,
-                                        newsUrl: item.url
+                                    this.props.nav.navigate('web',{
+                                        title:item.title,
+                                        newsUrl:item.url
                                     })
                                 }
                                 }>
-                                <View style={{flexDirection: 'row', justifyContent: 'space-between', margin: 16}}>
-                                    <Text style={{color: 'black', fontSize: 18}}>{item.title}</Text>
+                                <View style={{flexDirection: 'row',justifyContent:'space-between',margin:16}}>
+                                    <Text style={{ color: 'black', fontSize: 18}}>{item.title}</Text>
 
-                                    <Text style={{
-                                        borderRadius: 10,
-                                        backgroundColor: Color.colorRed,
-                                        color: 'white',
-                                        padding: 5
-                                    }}>{'新消息'}</Text>
+                                    <Text style={{borderRadius:10,backgroundColor:Color.colorRed,color:'white',padding:5}}>{'新消息'}</Text>
                                 </View>
                                 <Text style={{marginLeft: 10}}>{'来自：' + item.subid}</Text>
 
@@ -118,9 +110,19 @@ export default class NotificationPager extends Component {
                             }
                         />
 
+                      /*  {
+                            "level":2,     //报警等级
+                            "type":23,           //类型
+
+                            "alarmname":"Zone2",    //防区名称
+                            "area":"Partition1"    //分区名称
+                            "alarminfo":"0.1kV 0.2kV 30mA 40mA",  //详情
+
+                            "user":"admin",   //操作用户
+                            "time":"2018-05-12 12:59:01",   //触发时间
+                        }*/
                     })()
                 }
-
             </View>
 
         );
@@ -129,8 +131,8 @@ export default class NotificationPager extends Component {
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
         backgroundColor: '#eeeeee',
-        flex: 1
     },
 
 });
