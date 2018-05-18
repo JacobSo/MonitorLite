@@ -8,6 +8,16 @@ export const stateText = [
     '报警',
     '掉线'
 ];
+
+export const stateSelectText = [
+    '布防',
+    '撤防',
+    '报警',
+    '掉线',
+    '复位',
+    '全部'
+];
+
 export const typeText = [
     '高压电网',
     '脉冲围栏',

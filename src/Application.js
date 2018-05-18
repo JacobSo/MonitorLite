@@ -15,14 +15,11 @@ export  default  class Application extends Component {
     static noset = '';//
     static reset = '';//
 
-    /*
 
-     static saveSingleToken(value) {
-     console.log("save:")
-     this.token = value
-     return AsyncStorage.setItem("token", JSON.stringify(value));
-     }
-     */
+    static saveSingle(key, value) {
+        console.log("save:"+value)
+        return AsyncStorage.setItem(key, JSON.stringify(value));
+    }
 
     static getSingle(key) {
         return AsyncStorage.getItem(key).then((value) => {
@@ -57,7 +54,7 @@ export  default  class Application extends Component {
         });
     }
 
-    static saveAccount(user, pwd, platformId,baseUrl,level,right1,right2,right3) {
+    static saveAccount(user, pwd, platformId, baseUrl, level, right1, right2, right3) {
         this.user = user;
         this.pwd = pwd;
         this.platformId = platformId;

@@ -24,7 +24,7 @@ export  default  class ApiService {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
             body: param,
-            timeout: 60000
+            timeout: 30000
         })
             .then((response) => {
                 console.log(response);
@@ -43,7 +43,7 @@ export  default  class ApiService {
 
         return newFetch(temp, {
             method: 'GET',
-            timeout: 60000,
+            timeout: 30000,
             //   body: param
         })
             .then((response) => {
@@ -73,8 +73,8 @@ export  default  class ApiService {
         return this.getRequest(method, App.baseUrl);
     }
 
-    static findAlarm(user, start, end, areaId, alarmId, type, startId, max) {
-        let method = 'login?user=' + user +
+    static findAlarm(user, start, end, areaId, alarmId, type, startId) {
+        let method = 'findalarm?user=' + user +
             '&subid=' + App.platformId +
             '&start=' + start +
             '&end=' + end +
@@ -82,18 +82,18 @@ export  default  class ApiService {
             '&alarmId=' + alarmId +
             '&type=' + type +
             '&startid=' + startId +
-            '&max=' + max;
+            '&max=' + 50;
         return this.getRequest(method, App.baseUrl);
     }
 
     static sendCmd(areaId, alarmId, action) {
-        let method = 'login?user=' + App.user + '&subid=' + App.platformId + '&areaid=' + areaId + '&alarmid=' + alarmId + '&action=' + action
+        let method = 'sendcmd?user=' + App.user + '&subid=' + App.platformId + '&areaid=' + areaId + '&alarmid=' + alarmId + '&action=' + action
         return this.getRequest(method, App.baseUrl);
     }
 
-    static getPic(subId, areaId, alarmId, id, ip) {
-        let method = 'getpic?subid=' + subId + subId + '&areaid=' + areaId + '&alarmid=' + alarmId + '&id=' + id + '&ip=' + ip
-        return this.getRequest(method, App.baseUrl);
+    static getPic(areaId, alarmId, id) {
+        let method = 'getpic?subid=' + App.platformId + '&areaid=' + areaId + '&alarmid=' + alarmId + '&id=' + id + '&ip=' + App.baseUrl
+        return 'http://' + App.baseUrl + ':9983/' + method;
     }
 
 }

@@ -17,7 +17,7 @@ import Loading from 'react-native-loading-spinner-overlay';
 import Hoshi from "react-native-textinput-effects/lib/Hoshi";
 import Color from "../utils/Color"
 import SnackBar from 'react-native-snackbar-dialog'
-import Toolbar from "../component/Toolbar";
+import App from "../Application";
 import RefreshEmptyView from "../component/RefreshEmptyView";
 
 const {width, height} = Dimensions.get('window');
@@ -27,21 +27,28 @@ export default class NotificationPager extends Component {
         super(props);
         this.state = {
             isRefreshing: false,
-            items: []
+            items: [],
+            browseHistory: [],
         };
     }
 
     componentDidMount() {
         this.interval = setInterval(() => {
             this.feed()
-        }, 1000 * 60 * 30);
+        }, 1000 * 60 * 10);
 
         this.feed()
+        App.getSingle('history').then((data) => {
+            console.log(data);
+            this.setState({browseHistory:(data?data:[]) })
+            console.log(this.state.browseHistory)
+        }).done()
     }
 
     componentWillUnmount() {
         this.interval && clearInterval(this.interval);
     }
+
 
     feed() {
         this.setState({isRefreshing: true});
@@ -71,8 +78,7 @@ export default class NotificationPager extends Component {
                             } }/>
                         } else return <FlatList
                             horizontal={false}
-                            numColumns={2}
-                            keyExtractor={(item, index) => item.id}
+                            keyExtractor={(item, index) => item.id.toString()}
                             data={this.state.items}
                             extraData={this.state}
                             ListHeaderComponent={<View/>}
@@ -95,6 +101,8 @@ export default class NotificationPager extends Component {
                                     width: width - 32
                                 }}
                                 onPress={() => {
+                                    this.state.browseHistory.push(item.id);
+                                    App.saveSingle('history', this.state.browseHistory);
                                     this.props.nav.navigate('web', {
                                         title: item.title,
                                         newsUrl: item.url
@@ -104,12 +112,19 @@ export default class NotificationPager extends Component {
                                 <View style={{flexDirection: 'row', justifyContent: 'space-between', margin: 16}}>
                                     <Text style={{color: 'black', fontSize: 18}}>{item.title}</Text>
 
-                                    <Text style={{
-                                        borderRadius: 10,
-                                        backgroundColor: Color.colorRed,
-                                        color: 'white',
-                                        padding: 5
-                                    }}>{'新消息'}</Text>
+                                    {
+                                        (() => {
+                                            if (!(this.state.browseHistory.indexOf(item.id) > -1)) {
+                                                return <Text style={{
+                                                    borderRadius: 10,
+                                                    backgroundColor: Color.colorRed,
+                                                    color: 'white',
+                                                    padding: 5
+                                                }}>{'新消息'}</Text>
+                                            }
+                                        })()
+                                    }
+
                                 </View>
                                 <Text style={{marginLeft: 10}}>{'来自：' + item.subid}</Text>
 

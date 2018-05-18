@@ -25,8 +25,9 @@ import * as TextGroup from "../utils/TextGroup";
 import DialogAndroid from 'react-native-dialogs';
 import {alarmText} from "../utils/TextGroup";
 
-
+const PushNotification = require('react-native-push-notification');
 const {width, height} = Dimensions.get('window');
+
 export default class DevicesPager extends Component {
 
     constructor(props) {
@@ -38,6 +39,7 @@ export default class DevicesPager extends Component {
             topItem: {},
             alarmItems: [],
             checkMap: [],
+
         };
     }
 
@@ -46,15 +48,14 @@ export default class DevicesPager extends Component {
         this.state.items = this.props.nav.state.params.data;
         this.state.chaos = JSON.parse(JSON.stringify(this.props.nav.state.params.data));
         this.init(true);
-        this.feed()
-        /*    this.interval = setInterval(() => {
-         this.feed()
-         }, 1000 * 15);*/
-
+        this.feed();
+        this.interval = setInterval(() => {
+            this.feed()
+        }, 1000 * 15);
     }
 
     componentWillUnmount() {
-        //   this.interval && clearInterval(this.interval);
+        this.interval && clearInterval(this.interval);
     }
 
     init(isFirst) {
@@ -91,12 +92,12 @@ export default class DevicesPager extends Component {
         this.state.checkMap[data.key - 1] = !this.state.checkMap[data.key - 1]
         this.setState({});
 
-        console.log('show:' + this.state.checkMap)
-        console.log('show:' + this.state.items[data.key - 1]['isShow'])
+        //      console.log('show:' + this.state.checkMap)
+        //   console.log('show:' + this.state.items[data.key - 1]['isShow'])
     }
 
     dialog(data) {
-        console.log(data)
+        //   console.log(data)
         let rightGroup = []
         if (App.noset === 1)
             rightGroup.push('撤防')
@@ -111,7 +112,7 @@ export default class DevicesPager extends Component {
                 rightGroup.push('张力布防')
             }
         } else {
-            if(data.section){
+            if (data.section) {
                 if (data.section.type === 1) {
                     rightGroup.push('高压布防')
                     rightGroup.push('低压布防')
@@ -119,7 +120,7 @@ export default class DevicesPager extends Component {
                     rightGroup.push('张力高压布防')
                     rightGroup.push('张力布防')
                 }
-            }else{
+            } else {
                 if (data.type === 1) {
                     rightGroup.push('高压布防')
                     rightGroup.push('低压布防')
@@ -149,36 +150,30 @@ export default class DevicesPager extends Component {
         dialog.show();
     }
 
+    notification(num) {
+        PushNotification.localNotification({
+            message: "周界平台收到" + num + "条报警信息", // (required)
+        });
+    }
+
     feed() {
-        this.setState({isLoading: true});
+        this.setState({isRefreshing: true});
         ApiService.getLive()
             .then((responseJson) => {
-                this.setState({isLoading: false})
+                this.setState({isRefreshing: false})
                 if (responseJson.Code === 0 || responseJson.Code === '0') {
                     this.state.items = responseJson.info;
                     this.state.chaos = JSON.parse(JSON.stringify(responseJson.info));
-                    this.state.alarmItems = responseJson.alarm;
-                    if (this.state.alarmItems) {
-                        this.state.alarmItems.map((data) => {
-                            this.state.chaos.map((item) => {
-                                if (data.areaid === item.id) {
-                                    item.items.map((child) => {
-                                        if (data.alarmid === child.id) {
-                                            child.alarm = data;
-                                        }
-                                    })
-                                }
-                            })
-
-                        })
+                    if (responseJson.alarm && responseJson.alarm.length !== 0) {
+                        this.notification(responseJson.alarm.length);
                     }
+                    this.state.alarmItems = this.state.alarmItems.concat(responseJson.alarm);
                     this.init(false);
-
                 } else {
                     SnackBar.show(responseJson.Msg);
                 }
             }).catch((error) => {
-            this.setState({isLoading: false})
+            this.setState({isRefreshing: false})
             console.log(error)
         }).done()
     }
@@ -206,37 +201,35 @@ export default class DevicesPager extends Component {
             elevation: 5,
             backgroundColor: 'white',
             borderRadius: 10,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            width: width - 32,
         }}>
-            <View style={{padding: 16, width: width - 32, flexDirection: 'row', justifyContent: 'space-between',}}>
-                <Text style={{fontSize: 18, color: 'black'}}>{this.state.topItem.name}</Text>
-                <Text style={{
-                    backgroundColor: ColorGroup.stateColor[this.state.topItem.state],
-                    color: 'white',
+            <View style={{
+                flexDirection: 'row', height: 55, alignItems: 'center', justifyContent: 'center'
+            }}>
+                <View style={{
+                    width: 15,
+                    height: 15,
                     borderRadius: 10,
-                    padding: 5
-                }}>{TextGroup.stateText[this.state.topItem.state]}</Text>
+                    elevation: 5,
+                    margin: 16,
+                    backgroundColor: ColorGroup.stateColor[this.state.topItem.state]
+                }}/>
+                <Text style={{fontSize: 18, color: 'black'}}>{this.state.topItem.name}</Text>
             </View>
-            <View style={{flexDirection: 'row-reverse', width: width - 32,}}>
-                <TouchableOpacity onPress={() => {
-                    this.dialog(this.state.topItem)
-                }}>
-                    <Text style={{padding: 16, color: Color.colorBlue}}>发送命令</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => {
-                        this.props.nav.navigate('alarm', {
-                            data: this.state.alarmItems
-                        })
-                    }}>
-                    <Text style={{padding: 16}}>实时警报</Text>
-                </TouchableOpacity>
-            </View>
+
+            <TouchableOpacity onPress={() => {
+                this.dialog(this.state.topItem)
+            }} style={{height: 55, justifyContent: 'center',}}>
+                <Text style={{color: Color.colorBlue, padding: 16}}>指令</Text>
+            </TouchableOpacity>
 
         </View>
     }
 
     parent(parent) {
-        console.log(parent)
+        // console.log(parent)
         return <TouchableOpacity
             onPress={() => {
                 this.show(parent.section)
@@ -274,7 +267,7 @@ export default class DevicesPager extends Component {
     }
 
     child(child) {
-        console.log(child)
+        //  console.log(child)
         return <TouchableOpacity
             style={{backgroundColor: 'white',}}
             onPress={
@@ -295,43 +288,17 @@ export default class DevicesPager extends Component {
                     padding: 16,
                     marginLeft: 16
                 }}>
-                    <View style={{flexDirection: 'row', alignItems: 'flex-end', marginBottom: 10}}>
-                        <Text style={{color: 'black', fontSize: 18, marginRight: 16}}>{child.item.name}</Text>
-                        <Text>{child.item.type ? TextGroup.typeText[child.item.type] : ''}</Text>
-                    </View>
+                    <Text style={{color: 'black', fontSize: 18, marginRight: 16}}>{child.item.name}</Text>
                     <Text>{child.item.memo}</Text>
                 </View>
-
             </View>
-            {
-                (() => {
-                    console.log(child.item)
-                    if (child.item.alarm) {
-                        console.log('run')
 
-                        return <View style={{flexDirection: 'row', alignItems: 'center', paddingLeft: 32 + 16}}>
-                            {/* <Image style={{width:25,height:25,margin:5}} source={require('../drawable/warning.png')}/>*/}
-
-                            <Text style={{
-                                color: '#F44336',
-                                backgroundColor: '#FFCDD2',
-                                marginLeft: 16,
-                                padding: 5,
-                                borderRadius: 10
-                            }}>警报</Text>
-                            <Text style={{marginLeft: 16}}>{child.item.alarm.alarminfo}</Text>
-                            <Text style={{marginLeft: 16}}>{alarmText[child.item.alarm.type]}</Text>
-                        </View>
-                    }
-                })()
-            }
         </TouchableOpacity>
     }
 
     render() {
         return (
             <View style={styles.container}>
-
                 {
                     (() => {
                         if (this.state.items.length === 0) {
@@ -360,7 +327,6 @@ export default class DevicesPager extends Component {
                     })()
                 }
                 <Loading visible={this.state.isLoading}/>
-
             </View>
         );
     }

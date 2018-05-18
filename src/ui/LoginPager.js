@@ -26,26 +26,32 @@ export default class LoginPager extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            //isWelcome:true,
+            isWelcome:true,
             isLoading: false,
-            baseUrl: '123.207.15.167',
-            platformId: '1001',
-            user: 'admin',
-            pwd: 'admin',
+            baseUrl: '',//'123.207.15.167',
+            platformId: '',//1001
+            user: '',
+            pwd: '',
         };
     }
 
     componentDidMount() {
-        /*setTimeout(
+        setTimeout(
          () => { this.setState({isWelcome:false})},
          2000
-         )*/
+         )
+        App.initAccount(()=>{
+         this.setState({
+             baseUrl: App.baseUrl,
+             platformId: App.platformId,
+             user: App.user
+         })
+        })
     }
 
     login() {
         if (this.state.baseUrl === 0 || this.state.user.length === 0 || this.state.pwd.length === 0 || this.state.platformId.length === 0) {
             SnackBar.show("信息不能为空");
-            parse
             return
         }
         this.setState({isLoading: true});
@@ -62,8 +68,6 @@ export default class LoginPager extends Component {
                         responseJson.set,
                         responseJson.noset,
                         responseJson.reset,
-
-
                     );
                     const resetAction = StackActions.reset({
                         index: 0,
@@ -85,12 +89,13 @@ export default class LoginPager extends Component {
             }).catch((error) => {
             this.setState({isLoading: false})
             console.log(error)
+            SnackBar.show("服务异常");
         }).done()
     }
 
     render() {
         return (
-            <KeyboardAvoidingView behavior={'padding'}>
+            <KeyboardAvoidingView behavior={'padding'} keyboardVerticalOffset={55}>
                 {
                     (() => {
                         if (this.state.isWelcome) {

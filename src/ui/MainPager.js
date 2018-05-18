@@ -6,7 +6,7 @@
 
 import React, {Component} from 'react';
 import {
-    Image,
+    BackHandler,
     Dimensions,
     StyleSheet,
     Text,
@@ -38,10 +38,18 @@ export default class MainPager extends Component {
             platformId: '1001',
             user: 'admin',
             pwd: 'admin',
+
+            alarmItems:[],
+
         };
     }
+    componentWillMount(){
+        BackHandler.addEventListener('hardwareBackPress', function() {
+            return true;
+        });
+    }
+        componentDidMount() {
 
-    componentDidMount() {
     }
 
     render() {
@@ -54,12 +62,20 @@ export default class MainPager extends Component {
                     isHomeUp={false}
                     isAction={true}
                     isActionByText={false}
-                    actionArray={[require("../drawable/setting.png")]}
+                    actionArray={[require("../drawable/alarm.png")]}
                     functionArray={[
                         () => {
                             this.props.nav.goBack(null)
                         },
                         ()=>{
+                        console.log(this.refs.devices.state.chaos)
+                            this.props.nav.navigate('alarm', {
+                                data: this.refs.devices.state.alarmItems,
+                                initData:this.refs.devices.state.topItem,
+                                requestFunc:()=>{
+                                    return this.refs.devices.state.alarmItems
+                                }
+                            })
                         }
                     ]}/>
                 <ScrollableTabView
@@ -70,7 +86,7 @@ export default class MainPager extends Component {
                     tabBarInactiveTextColor={Color.background}
                     tabBarUnderlineStyle={{backgroundColor: 'white',}}>
 
-                    <DevicesPager tabLabel='设备' nav={this.props.nav}/>
+                    <DevicesPager tabLabel='设备' nav={this.props.nav} ref="devices"/>
                     <NotificationPager tabLabel='通知'  nav={this.props.nav}/>
                 </ScrollableTabView>
 
