@@ -135,7 +135,7 @@ export default class LoginPager extends Component {
                         />
                         <Hoshi
                             style={{width: width - 64, marginTop: 16}}
-                            label={'子平台ID'}
+                            label={'服务编号'}
                             value={this.state.platformId}
                             borderColor={Color.colorBlue}
                             onChangeText={(text) => this.setState({platformId: text})}
