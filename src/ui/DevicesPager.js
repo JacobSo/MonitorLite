@@ -201,7 +201,6 @@ export default class DevicesPager extends Component {
             elevation: 5,
             backgroundColor: 'white',
             borderRadius: 10,
-            flexDirection: 'row',
             justifyContent: 'space-between',
             width: width - 32,
         }}>
@@ -218,7 +217,12 @@ export default class DevicesPager extends Component {
                 }}/>
                 <Text style={{fontSize: 18, color: 'black'}}>{this.state.topItem.name}</Text>
             </View>
-
+            <View style={{flexDirection: 'row'}}>
+                <Text>分区总数：</Text>
+                <Text>10</Text>
+                <Text>防区总数：</Text>
+                <Text>10</Text>
+            </View>
             <TouchableOpacity onPress={() => {
                 this.dialog(this.state.topItem)
             }} style={{height: 55, justifyContent: 'center',}}>
@@ -231,111 +235,111 @@ export default class DevicesPager extends Component {
     parent(parent) {
         // console.log(parent)
         return <TouchableOpacity
-            onPress={() => {
-                this.show(parent.section)
-            }}
+        onPress={() => {
+            this.show(parent.section)
+        }}
         >
-            <View>
-                <View style={{backgroundColor: Color.line, height: 1, width: width}}/>
-                <View style={{backgroundColor: 'white', flexDirection: 'row', alignItems: 'center'}}>
-                    <View style={{
-                        width: 10,
-                        height: 55,
-                        elevation: 5,
-                        backgroundColor: ColorGroup.stateColor[parent.section.state]
-                    }}/>
-                    <Text style={{
-                        color: Color.content,
-                        padding: 16,
-                        fontSize: 15,
-                        /*   borderTopWidth: 1,
-                         borderTopColor: Color.line*/
-                    }}>{parent.section.name}</Text>
+        <View>
+        <View style={{backgroundColor: Color.line, height: 1, width: width}}/>
+        <View style={{backgroundColor: 'white', flexDirection: 'row', alignItems: 'center'}}>
+        <View style={{
+            width: 10,
+            height: 55,
+            elevation: 5,
+            backgroundColor: ColorGroup.stateColor[parent.section.state]
+        }}/>
+        <Text style={{
+            color: Color.content,
+            padding: 16,
+            fontSize: 15,
+            /*   borderTopWidth: 1,
+             borderTopColor: Color.line*/
+        }}>{parent.section.name}</Text>
 
-                </View>
-                <View style={{backgroundColor: Color.line, height: 1, width: width}}/>
-            </View>
-            <TouchableOpacity
-                style={{position: 'absolute', right: 0, height: 55, alignItems: 'center', justifyContent: 'center'}}
-                onPress={() => {
-                    this.dialog(parent)
-                }
-                }>
-                <Text style={{color: Color.colorBlue, padding: 16}}>指令</Text>
-            </TouchableOpacity>
+        </View>
+        <View style={{backgroundColor: Color.line, height: 1, width: width}}/>
+        </View>
+        <TouchableOpacity
+        style={{position: 'absolute', right: 0, height: 55, alignItems: 'center', justifyContent: 'center'}}
+        onPress={() => {
+            this.dialog(parent)
+        }
+        }>
+        <Text style={{color: Color.colorBlue, padding: 16}}>指令</Text>
+        </TouchableOpacity>
         </TouchableOpacity>
     }
 
     child(child) {
         //  console.log(child)
         return <TouchableOpacity
-            style={{backgroundColor: 'white',}}
-            onPress={
-                () => {
-                    this.dialog(child)
-                }
-            }>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <View style={{
-                    width: 15,
-                    height: 15,
-                    borderRadius: 10,
-                    elevation: 5,
-                    marginLeft: 16,
-                    backgroundColor: ColorGroup.stateColor[child.item.state]
-                }}/>
-                <View style={{
-                    padding: 16,
-                    marginLeft: 16
-                }}>
-                    <Text style={{color: 'black', fontSize: 18, marginRight: 16}}>{child.item.name}</Text>
-                    <Text>{child.item.memo}</Text>
-                </View>
-            </View>
+        style={{backgroundColor: 'white',}}
+        onPress={
+            () => {
+                this.dialog(child)
+            }
+        }>
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <View style={{
+            width: 15,
+            height: 15,
+            borderRadius: 10,
+            elevation: 5,
+            marginLeft: 16,
+            backgroundColor: ColorGroup.stateColor[child.item.state]
+        }}/>
+        <View style={{
+            padding: 16,
+            marginLeft: 16
+        }}>
+        <Text style={{color: 'black', fontSize: 18, marginRight: 16}}>{child.item.name}</Text>
+        <Text>{child.item.memo}</Text>
+        </View>
+        </View>
 
         </TouchableOpacity>
     }
 
     render() {
         return (
-            <View style={styles.container}>
-                {
-                    (() => {
-                        if (this.state.items.length === 0) {
-                            return <RefreshEmptyView isRefreshing={this.state.isRefreshing} onRefreshFunc={() => {
-                                this.feed()
-                            } }/>
-                        } else return <SectionList
-                            refreshControl={
-                                <RefreshControl
-                                    refreshing={this.state.isRefreshing}
-                                    onRefresh={() => this.feed()}
-                                    tintColor={Color.colorBlueGrey}//ios
-                                    title="刷新中..."//ios
-                                    titleColor='white'
-                                    colors={[Color.colorBlue]}
-                                    progressBackgroundColor="white"
-                                />}
-                            ListHeaderComponent={() => this.header()}
-                            ListFooterComponent={() => <View style={{height: 55}}/>}
-                            keyExtractor={(item) => item.id}
-                            renderSectionHeader={(parent) => this.parent(parent)}
-                            renderItem={(child) => this.child(child) }
-                            sections={this.state.items}
-                        />
+        <View style={styles.container}>
+        {
+            (() => {
+                if (this.state.items.length === 0) {
+                    return <RefreshEmptyView isRefreshing={this.state.isRefreshing} onRefreshFunc={() => {
+                        this.feed()
+                    } }/>
+                } else return <SectionList
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.isRefreshing}
+                            onRefresh={() => this.feed()}
+                            tintColor={Color.colorBlueGrey}//ios
+                            title="刷新中..."//ios
+                            titleColor='white'
+                            colors={[Color.colorBlue]}
+                            progressBackgroundColor="white"
+                        />}
+                    ListHeaderComponent={() => this.header()}
+                    ListFooterComponent={() => <View style={{height: 55}}/>}
+                    keyExtractor={(item) => item.id}
+                    renderSectionHeader={(parent) => this.parent(parent)}
+                    renderItem={(child) => this.child(child) }
+                    sections={this.state.items}
+                />
 
-                    })()
-                }
-                <Loading visible={this.state.isLoading}/>
-            </View>
+            })()
+        }
+        <Loading visible={this.state.isLoading}/>
+        </View>
         );
     }
-}
+    }
 
-const styles = StyleSheet.create({
-    container: {
+    const styles = StyleSheet.create({
+        container: {
         flex: 1,
         backgroundColor: '#eeeeee',
     },
 
-});
+    });

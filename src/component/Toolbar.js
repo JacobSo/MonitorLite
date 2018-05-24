@@ -5,7 +5,7 @@
  * Created by Administrator on 2017/3/15.
  */
 'use strict';
-import React, {Component, } from 'react';
+import React, {Component,} from 'react';
 import PropTypes from 'prop-types';
 import {View, Text, TouchableOpacity, Image, StyleSheet, TextInput,} from 'react-native';
 import Color from "../utils/Color"
@@ -35,7 +35,7 @@ export default class Toolbar extends Component {
                 <TouchableOpacity onPress={this.props.functionArray[0]}
                                   style={{paddingTop: 16, paddingRight: 32, paddingBottom: 16}}>
                     <Image style={styles.home}
-                           source={ this.props.isWhiteBar?require('../drawable/action_back_black.png'):require('../drawable/action_back.png')}/></TouchableOpacity>)
+                           source={ this.props.isWhiteBar ? require('../drawable/action_back_black.png') : require('../drawable/action_back.png')}/></TouchableOpacity>)
         }
     }
 
@@ -53,12 +53,16 @@ export default class Toolbar extends Component {
     _getTitle() {
         if (!this.props.isSearch) {
             if (this.props.title.length === 1) {
-                return (<Text style={[styles.title,{color:this.props.isWhiteBar?'black':'white'}]} numberOfLines={1}>{this.props.title[0]}</Text>)
+                return (<Text style={[styles.title, {color: this.props.isWhiteBar ? 'black' : 'white'}]}
+                              numberOfLines={1}>{this.props.title[0]}</Text>)
             } else {
                 return (
                     <View style={styles.multiTitle}>
-                        <Text style={[styles.title,{color:this.props.isWhiteBar?'black':'white'}]} numberOfLines={1}>{this.props.title[0]}</Text>
-                        <Text style={[styles.subtitle,{color:this.props.isWhiteBar?Color.content: Color.background}]} numberOfLines={1}>{this.props.title[1]}</Text>
+                        {/*<Text style={[styles.title,{color:this.props.isWhiteBar?'black':'white'}]} numberOfLines={1}>{this.props.title[0]}</Text>*/}
+                        <Image source={require('../drawable/logo.png')} style={{height:25,width:120}}resizeMode={"contain"}/>
+                        <Text
+                            style={[styles.subtitle, {color: this.props.isWhiteBar ? Color.content : Color.background}]}
+                            numberOfLines={1}>{this.props.title[1]}</Text>
 
                     </View>
 
@@ -74,13 +78,14 @@ export default class Toolbar extends Component {
                 return (
                     <View style={styles.actionBackground}>
                         <TouchableOpacity onPress={this.props.functionArray[1]}>
-                            <Text style={[styles.actionText,{color:this.props.isWhiteBar?'black':'white'}]}>{this.props.actionArray[0]}</Text></TouchableOpacity>
+                            <Text
+                                style={[styles.actionText, {color: this.props.isWhiteBar ? 'black' : 'white'}]}>{this.props.actionArray[0]}</Text></TouchableOpacity>
                         {(() => {
                             if (this.props.actionArray.length === 2) {
                                 return (
                                     <TouchableOpacity onPress={this.props.functionArray[2]}>
                                         <Text
-                                            style={[styles.actionText,{color:this.props.isWhiteBar?'black':'white'}]}>{this.props.actionArray[1]}</Text></TouchableOpacity>
+                                            style={[styles.actionText, {color: this.props.isWhiteBar ? 'black' : 'white'}]}>{this.props.actionArray[1]}</Text></TouchableOpacity>
                                 )
                             }
                         })()}
@@ -114,7 +119,7 @@ export default class Toolbar extends Component {
                                 placeholderTextColor={'white'}
                                 selectionColor={'white'}
                                 underlineColorAndroid="transparent"
-                                onChangeText={(text)=>this.props.searchFunc(text)}/>)
+                                onChangeText={(text) => this.props.searchFunc(text)}/>)
         }
     }
 
@@ -144,12 +149,12 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
     },
     title: {
-        width:200,
+        width: 200,
         color: 'white',
         fontSize: 18,
     },
     subtitle: {
-        width:200,
+        width: 200,
         color: Color.background,
         fontSize: 15,
     },
@@ -184,6 +189,6 @@ const styles = StyleSheet.create({
         marginRight: 16,
         borderColor: Color.line,
         borderBottomWidth: 1,
-        color:'white'
+        color: 'white'
     },
 });

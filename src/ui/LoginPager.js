@@ -26,27 +26,29 @@ export default class LoginPager extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            isWelcome:true,
+            isWelcome: false,
             isLoading: false,
-            baseUrl: '',//'123.207.15.167',
-            platformId: '',//1001
-            user: '',
-            pwd: '',
+            baseUrl: '123.207.15.167',//'123.207.15.167',
+            platformId: '1001',//1001
+            user: 'admin',
+            pwd: 'admin',
         };
     }
 
     componentDidMount() {
-        setTimeout(
-         () => { this.setState({isWelcome:false})},
-         2000
-         )
-        App.initAccount(()=>{
-         this.setState({
-             baseUrl: App.baseUrl,
-             platformId: App.platformId,
-             user: App.user
-         })
-        })
+/*        setTimeout(
+            () => {
+                this.setState({isWelcome: false})
+            },
+            2000
+        );*/
+/*        App.initAccount(() => {
+            this.setState({
+                baseUrl: App.baseUrl,
+                platformId: App.platformId,
+                user: App.user
+            })
+        })*/
     }
 
     login() {
@@ -99,7 +101,7 @@ export default class LoginPager extends Component {
                 {
                     (() => {
                         if (this.state.isWelcome) {
-                            return <Image source={require('../drawable/first.png')}
+                            return <Image source={require('../drawable/welcome.jpg')}
                                           style={{width: width, height: height}}/>
                         } else {
                             return null
@@ -110,7 +112,7 @@ export default class LoginPager extends Component {
                     <View style={styles.container}>
                         <Image style={{borderRadius: 100, width: 100, height: 100, margin: 32}}
                                source={require('../drawable/ic_launcher.png')}/>
-                        <Text style={{fontSize: 25, fontWeight: 'bold', color: Color.colorBlue}}>周界系统</Text>
+                        <Text style={{fontSize: 25, fontWeight: 'bold', color: Color.colorBlue}}>周界管理系统</Text>
                         <Hoshi
                             style={{width: width - 64, marginTop: 16}}
                             label={'服务器'}
