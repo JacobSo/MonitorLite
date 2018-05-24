@@ -57,7 +57,7 @@ export default class MainPager extends Component {
             <View style={styles.container}>
                 <Toolbar
                     elevation={0}
-                    title={["周界管理系统","周界管理系统"]}
+                    title={this.props.isShowLogo?["周界管理系统","周界管理系统"]:["  周界管理系统"]}
                     color={Color.colorBlue}
                     isHomeUp={false}
                     isAction={true}

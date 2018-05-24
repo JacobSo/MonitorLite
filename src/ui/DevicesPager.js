@@ -39,7 +39,7 @@ export default class DevicesPager extends Component {
             topItem: {},
             alarmItems: [],
             checkMap: [],
-
+            totalCount:0,
         };
     }
 
@@ -60,7 +60,10 @@ export default class DevicesPager extends Component {
 
     init(isFirst) {
         let topIndex = 0;
+        let count = 0;
         this.state.items.map((data, i) => {
+            console.log(data)
+            count+=data.items.length;
             if (data.id === 0) {
                 this.state.topItem = data;
                 topIndex = i;
@@ -77,12 +80,13 @@ export default class DevicesPager extends Component {
         });
         this.state.items.splice(topIndex, 1);
         this.state.chaos.splice(topIndex, 1);
-        this.setState({})
+        this.setState({totalCount:count})
         /*        console.log(this.state.chaos);
          console.log(this.state.items);
          */
         console.log(this.state.items[0].data);
         //  console.log('init:' + this.state.checkMap)
+
 
     }
 
@@ -196,16 +200,18 @@ export default class DevicesPager extends Component {
     }
 
     header() {
-        return <View style={{
+        return<View style={{
             margin: 16,
             elevation: 5,
             backgroundColor: 'white',
             borderRadius: 10,
-            justifyContent: 'space-between',
             width: width - 32,
+            flexDirection:'row',
+            justifyContent:'space-between'
         }}>
+        <View>
             <View style={{
-                flexDirection: 'row', height: 55, alignItems: 'center', justifyContent: 'center'
+                flexDirection: 'row', height: 55, alignItems: 'center',
             }}>
                 <View style={{
                     width: 15,
@@ -217,18 +223,19 @@ export default class DevicesPager extends Component {
                 }}/>
                 <Text style={{fontSize: 18, color: 'black'}}>{this.state.topItem.name}</Text>
             </View>
-            <View style={{flexDirection: 'row'}}>
-                <Text>分区总数：</Text>
-                <Text>10</Text>
-                <Text>防区总数：</Text>
-                <Text>10</Text>
+            <View style={{flexDirection: 'row',marginLeft:16,marginBottom:16}}>
+                <Text style={{color: Color.colorBlue,}}>分区总数：</Text>
+                <Text  style={{color: Color.colorBlue,}}>{this.state.items.length}</Text>
+                <Text style={{color: Color.colorBlue,marginLeft:16}}>防区总数：</Text>
+                <Text  style={{color: Color.colorBlue,}}>{this.state.totalCount}</Text>
             </View>
+
+        </View>
             <TouchableOpacity onPress={() => {
                 this.dialog(this.state.topItem)
-            }} style={{height: 55, justifyContent: 'center',}}>
-                <Text style={{color: Color.colorBlue, padding: 16}}>指令</Text>
+            }} style={{ justifyContent: 'center',backgroundColor:Color.colorCyan,margin: 16,borderRadius:10,height:35}}>
+                <Text style={{color: 'white',padding:10 }}>指令</Text>
             </TouchableOpacity>
-
         </View>
     }
 
@@ -244,7 +251,7 @@ export default class DevicesPager extends Component {
         <View style={{backgroundColor: 'white', flexDirection: 'row', alignItems: 'center'}}>
         <View style={{
             width: 10,
-            height: 55,
+            height: 60,
             elevation: 5,
             backgroundColor: ColorGroup.stateColor[parent.section.state]
         }}/>
@@ -260,20 +267,21 @@ export default class DevicesPager extends Component {
         <View style={{backgroundColor: Color.line, height: 1, width: width}}/>
         </View>
         <TouchableOpacity
-        style={{position: 'absolute', right: 0, height: 55, alignItems: 'center', justifyContent: 'center'}}
+        style={{position: 'absolute', right: 0,  alignItems: 'center', justifyContent: 'center',backgroundColor:Color.colorCyan,margin: 16,borderRadius:10,height:35}}
         onPress={() => {
             this.dialog(parent)
         }
         }>
-        <Text style={{color: Color.colorBlue, padding: 16}}>指令</Text>
+        <Text style={{color: 'white', padding: 10}}>指令</Text>
         </TouchableOpacity>
         </TouchableOpacity>
     }
 
     child(child) {
+        console.log(child.index)
         //  console.log(child)
         return <TouchableOpacity
-        style={{backgroundColor: 'white',}}
+        style={{backgroundColor:child.index%2===0? Color.background:'#B3E5FC',}}
         onPress={
             () => {
                 this.dialog(child)
