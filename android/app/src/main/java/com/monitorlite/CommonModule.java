@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
  */
 
 public class CommonModule extends ReactContextBaseJavaModule {
-
+    AlertDialog dialog;
 
     public CommonModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -43,21 +43,32 @@ public class CommonModule extends ReactContextBaseJavaModule {
 
     //demo
     @ReactMethod
-    public void show(String titleStr, String[] items, String[] colors, final Callback successCallback) {
+    public void show(String titleStr, String items, String colors, final Callback successCallback) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getCurrentActivity());
+
         View view = View.inflate(getCurrentActivity(), R.layout.custom_dialog, null);
         builder.setView(view);
         TextView title = view.findViewById(R.id.title);
         title.setText(titleStr);
+        View dismiss = view.findViewById(R.id.dismiss);
+        dismiss.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (dialog != null && dialog.isShowing())
+                    dialog.dismiss();
+            }
+        });
         ListView mListView = view.findViewById(R.id.listView);
-        mListView.setAdapter(new MyAdapter(getCurrentActivity(), items, colors));
+        mListView.setAdapter(new MyAdapter(getCurrentActivity(), items.split(","), colors.split(",")));
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 successCallback.invoke(arg2);
+                if (dialog != null && dialog.isShowing())
+                    dialog.dismiss();
             }
         });
-        AlertDialog dialog = builder.create();
+        dialog = builder.create();
         dialog.show();
     }
 }

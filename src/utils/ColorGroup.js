@@ -9,3 +9,15 @@ export const stateColor = [
     Color.colorRed,
     Color.colorYellow,
 ];
+export const nameColor =
+    Color.colorDeepPurple+','+
+    Color.colorBlue+','+
+    Color.colorRed+','+
+    Color.colorLightGreen+','+
+    Color.colorBrown+','+
+    Color.colorCyan+','+
+    Color.colorTeal+','+
+    Color.colorLime+','+
+    Color.colorOrange+','+
+    Color.colorBlueGrey
+;

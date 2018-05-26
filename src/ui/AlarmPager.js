@@ -46,15 +46,19 @@ export default class AlarmPager extends Component {
             alarmId: 0,
             alarmText: '全部',
             pageIndex: 0,
-            isFeed: false
+            isToadyData: true,
+            monthDate:(new Date().getMonth()+1)+''+new Date().getDate()
         };
     }
 
     componentDidMount() {
+        console.log(App.loginTime)
+        console.log(App.loginTime.substring(4,7)+"="+this.state.monthDate)
+        this.feed(false)
         this.interval = setInterval(() => {
             console.log('alarm feed')
-            if (!this.state.isFeed)
-                this.setState({items: this.props.requestFunc()})
+            if (this.state.isToadyData)
+                this.feed(false)
         }, 1000 * 10);
     }
 
@@ -92,10 +96,10 @@ export default class AlarmPager extends Component {
         this.setState({isRefreshing: true});
         ApiService.findAlarm(
             this.state.userText,
-            this.state.beginTime.replace(/-/g, '') + '000001',
-            this.state.endTime.replace(/-/g, '') + '235959',
-            0,
-            0,
+            this.state.isToadyData ? (App.loginTime.substring(3,6)===this.state.monthDate?App.loginTime:(this.getNowFormatDate().replace(/-/g, '') + '000001')): (this.state.beginTime.replace(/-/g, '') + '000001'),
+            this.state.isToadyData ?this.getNowFormatDate().replace(/-/g, '') + '235959':this.state.endTime.replace(/-/g, '') + '235959',
+            this.state.areaId,
+            this.state.alarmId,
             this.state.alarmType,
             this.state.pageIndex)
             .then((responseJson) => {
@@ -106,14 +110,12 @@ export default class AlarmPager extends Component {
 
                     if (isLoad) {
                         this.setState({
-                            isFeed: true,
-                            items: this.state.items.concat(responseJson.info),
+                            items: this.state.items.concat(responseJson.info).reverse(),
                             pageIndex: responseJson.LastId
                         })
                     } else {
                         this.setState({
-                            isFeed: true,
-                            items: responseJson.info,
+                            items: responseJson.info.reverse(),
                             pageIndex: responseJson.LastId
                         })
                     }
@@ -235,8 +237,11 @@ export default class AlarmPager extends Component {
                 }}>
                     <Text style={{padding: 16}}>收起</Text></TouchableOpacity>
                 <TouchableOpacity onPress={() => {
+                    this.setState({
+                        isSearch: false,
+                        isToadyData: false
+                    });
                     this.feed(false);
-                    this.setState({isSearch: false})
                 }
                 }>
                     <Text style={{color: Color.colorBlue, padding: 16}}>查询警报</Text>
@@ -251,7 +256,7 @@ export default class AlarmPager extends Component {
             <View style={styles.container}>
                 <Toolbar
                     elevation={5}
-                    title={["报警信息"]}
+                    title={[this.state.isToadyData?"报警信息":'搜索报警']}
                     color={Color.colorBlue}
                     isHomeUp={true}
                     isAction={true}
@@ -282,10 +287,10 @@ export default class AlarmPager extends Component {
                             refreshControl={
                                 <RefreshControl
                                     refreshing={this.state.isRefreshing}
-                                    onRefresh={() => this.setState({
-                                        isFeed: false,
-                                        items: this.props.requestFunc()
-                                    })}
+                                    onRefresh={() => {
+                                        this.state.isToadyData = true;
+                                        this.feed(false)
+                                    }}
                                     tintColor={Color.colorBlueGrey}//ios
                                     title="刷新中..."//ios
                                     titleColor='white'
@@ -294,10 +299,10 @@ export default class AlarmPager extends Component {
                                 />}
                             horizontal={false}
                             keyExtractor={(item, index) => index.toString()}
-                            data={this.state.items}
+                            data={this.state.items.reverse()}
                             extraData={this.state}
                             ListHeaderComponent={<View/>}
-                            ListFooterComponent={this.state.isFeed ?
+                            ListFooterComponent={
                                 <TouchableOpacity
                                     style={{
                                         height: 45,
@@ -313,7 +318,7 @@ export default class AlarmPager extends Component {
                                     }}
                                     onPress={() => this.feed(true)}>
                                     <Text>加载更多</Text>
-                                </TouchableOpacity> : null}
+                                </TouchableOpacity>}
                             renderItem={({item, index}) => <TouchableOpacity
                                 style={{
                                     backgroundColor: 'white',

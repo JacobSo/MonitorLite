@@ -73,7 +73,7 @@ export default class MainPager extends Component {
                                 data: this.refs.devices.state.alarmItems,
                                 initData:this.refs.devices.state.topItem,
                                 requestFunc:()=>{
-                                    return this.refs.devices.state.alarmItems
+                                    return this.refs.devices.state.alarmItems.reverse()
                                 }
                             })
                         }

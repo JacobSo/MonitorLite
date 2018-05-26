@@ -19,7 +19,6 @@ import Hoshi from "react-native-textinput-effects/lib/Hoshi";
 import Color from "../utils/Color"
 import SnackBar from 'react-native-snackbar-dialog'
 import App from '../Application';
-import AndroidModule from '../native/AndoridCommontModule'
 
 const {width, height} = Dimensions.get('window');
 export default class LoginPager extends Component {
@@ -50,7 +49,7 @@ export default class LoginPager extends Component {
          user: App.user
          })
          })*/
-        AndroidModule.show();
+
     }
 
     login() {
@@ -73,6 +72,8 @@ export default class LoginPager extends Component {
                         responseJson.noset,
                         responseJson.reset,
                     );
+                    var date = new Date()
+                    App.loginTime = (date.getFullYear())+''+(date.getMonth()+1)+''+date.getDate()+''+date.getHours()+''+date.getMinutes()+''+date.getMilliseconds()
                     const resetAction = StackActions.reset({
                         index: 0,
                         actions: [

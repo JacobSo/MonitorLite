@@ -10,7 +10,7 @@ import {
     Dimensions,
     StyleSheet,
     Text,
-    View, TouchableOpacity, KeyboardAvoidingView, ScrollView, RefreshControl, FlatList, SectionList
+    View, TouchableOpacity, DeviceEventEmitter, ScrollView, RefreshControl, FlatList, SectionList
 } from 'react-native';
 import ApiService from "../api/ApiService";
 import Loading from 'react-native-loading-spinner-overlay';
@@ -21,9 +21,11 @@ import Toolbar from "../component/Toolbar";
 import RefreshEmptyView from "../component/RefreshEmptyView";
 import * as ColorGroup from "../utils/ColorGroup";
 import * as TextGroup from "../utils/TextGroup";
+import PushNotificationAndroid from 'react-native-push-notification'
+import {NavigationActions, StackActions} from 'react-navigation';
 
 import DialogAndroid from 'react-native-dialogs';
-import {alarmText} from "../utils/TextGroup";
+import AndroidModule from '../native/AndoridCommontModule'
 
 const PushNotification = require('react-native-push-notification');
 const {width, height} = Dimensions.get('window');
@@ -39,12 +41,12 @@ export default class DevicesPager extends Component {
             topItem: {},
             alarmItems: [],
             checkMap: [],
-            totalCount:0,
+            totalCount: 0,
         };
     }
 
     componentDidMount() {
-        // console.log(this.props.nav.state.params.data);
+      //  console.log(this.props.nav)
         this.state.items = this.props.nav.state.params.data;
         this.state.chaos = JSON.parse(JSON.stringify(this.props.nav.state.params.data));
         this.init(true);
@@ -63,7 +65,7 @@ export default class DevicesPager extends Component {
         let count = 0;
         this.state.items.map((data, i) => {
             console.log(data)
-            count+=data.items.length;
+            count += data.items.length;
             if (data.id === 0) {
                 this.state.topItem = data;
                 topIndex = i;
@@ -80,13 +82,12 @@ export default class DevicesPager extends Component {
         });
         this.state.items.splice(topIndex, 1);
         this.state.chaos.splice(topIndex, 1);
-        this.setState({totalCount:count})
+        this.setState({totalCount: count});
         /*        console.log(this.state.chaos);
          console.log(this.state.items);
          */
         console.log(this.state.items[0].data);
         //  console.log('init:' + this.state.checkMap)
-
 
     }
 
@@ -102,61 +103,62 @@ export default class DevicesPager extends Component {
 
     dialog(data) {
         //   console.log(data)
-        let rightGroup = []
+        let rightGroup = ''
         if (App.noset === 1)
-            rightGroup.push('撤防')
+            rightGroup += '撤防,';
         if (App.set === 1)
-            rightGroup.push('布防')
+            rightGroup += '布防,';
         if (data.section && data.item) {
             if (data.item.type === 1 || data.item.type === 2) {
-                rightGroup.push('高压布防')
-                rightGroup.push('低压布防')
+                rightGroup += '高压布防,';
+                rightGroup += '低压布防,';
             } else if (data.item.type === 3) {
-                rightGroup.push('张力高压布防')
-                rightGroup.push('张力布防')
+                rightGroup += '张力高压布防,';
+                rightGroup += '张力布防,';
             }
         } else {
             if (data.section) {
                 if (data.section.type === 1) {
-                    rightGroup.push('高压布防')
-                    rightGroup.push('低压布防')
+                    rightGroup += '高压布防,';
+                    rightGroup += '低压布防,';
                 } else if (data.section.type === 3) {
-                    rightGroup.push('张力高压布防')
-                    rightGroup.push('张力布防')
+                    rightGroup += '张力高压布防,';
+                    rightGroup += '张力布防,';
                 }
             } else {
                 if (data.type === 1) {
-                    rightGroup.push('高压布防')
-                    rightGroup.push('低压布防')
+                    rightGroup += '高压布防,';
+                    rightGroup += '低压布防,';
                 } else if (data.type === 3) {
-                    rightGroup.push('张力高压布防')
-                    rightGroup.push('张力布防')
+                    rightGroup += '张力高压布防,';
+                    rightGroup += '张力布防,';
                 }
             }
 
         }
         if (App.reset === 1)
-            rightGroup.push('复位')
+            rightGroup += '复位,';
 
-
-        let dialog = new DialogAndroid();
-        dialog.set({
-            title: '发送命令',
-            content: !data.item ? ('向【' + (data.section ? data.section.name : data.name) + '】发送指令') :
+        AndroidModule.show(!data.item ? ('向【' + (data.section ? data.section.name : data.name) + '】发送指令') :
                 ('向【' + data.section.name + '】下的【' + data.item.name + '】发送指令'),
-            items: rightGroup,
-            positiveText: '取消',
-            positiveColor: Color.colorBlue,
-            itemsCallback: (index, name) => {
-                this.command(data, index)
-            }
-        });
-        dialog.show();
+            rightGroup.substring(0, rightGroup.length - 1), ColorGroup.nameColor, (result) => {
+                this.command(data, result)
+            });
     }
 
     notification(num) {
+        PushNotification.configure({
+            onNotification: function (notification) {
+                console.log('NOTIFICATION:', notification);
+            },
+            popInitialNotification: true,
+            requestPermissions: true,
+        });
         PushNotification.localNotification({
             message: "周界平台收到" + num + "条报警信息", // (required)
+            data: {
+                nav: this.props.navigation
+            }
         });
     }
 
@@ -200,41 +202,47 @@ export default class DevicesPager extends Component {
     }
 
     header() {
-        return<View style={{
+        return <View style={{
             margin: 16,
             elevation: 5,
             backgroundColor: 'white',
             borderRadius: 10,
             width: width - 32,
-            flexDirection:'row',
-            justifyContent:'space-between'
+            flexDirection: 'row',
+            justifyContent: 'space-between'
         }}>
-        <View>
-            <View style={{
-                flexDirection: 'row', height: 55, alignItems: 'center',
-            }}>
+            <View>
                 <View style={{
-                    width: 15,
-                    height: 15,
-                    borderRadius: 10,
-                    elevation: 5,
-                    margin: 16,
-                    backgroundColor: ColorGroup.stateColor[this.state.topItem.state]
-                }}/>
-                <Text style={{fontSize: 18, color: 'black'}}>{this.state.topItem.name}</Text>
-            </View>
-            <View style={{flexDirection: 'row',marginLeft:16,marginBottom:16}}>
-                <Text style={{color: Color.colorBlue,}}>分区总数：</Text>
-                <Text  style={{color: Color.colorBlue,}}>{this.state.items.length}</Text>
-                <Text style={{color: Color.colorBlue,marginLeft:16}}>防区总数：</Text>
-                <Text  style={{color: Color.colorBlue,}}>{this.state.totalCount}</Text>
-            </View>
+                    flexDirection: 'row', height: 55, alignItems: 'center',
+                }}>
+                    <View style={{
+                        width: 15,
+                        height: 15,
+                        borderRadius: 10,
+                        elevation: 5,
+                        margin: 16,
+                        backgroundColor: ColorGroup.stateColor[this.state.topItem.state]
+                    }}/>
+                    <Text style={{fontSize: 18, color: 'black'}}>{this.state.topItem.name}</Text>
+                </View>
+                <View style={{flexDirection: 'row', marginLeft: 16, marginBottom: 16}}>
+                    <Text style={{color: Color.colorBlue,}}>分区总数：</Text>
+                    <Text style={{color: Color.colorBlue,}}>{this.state.items.length}</Text>
+                    <Text style={{color: Color.colorBlue, marginLeft: 16}}>防区总数：</Text>
+                    <Text style={{color: Color.colorBlue,}}>{this.state.totalCount}</Text>
+                </View>
 
-        </View>
+            </View>
             <TouchableOpacity onPress={() => {
                 this.dialog(this.state.topItem)
-            }} style={{ justifyContent: 'center',backgroundColor:Color.colorCyan,margin: 16,borderRadius:10,height:35}}>
-                <Text style={{color: 'white',padding:10 }}>指令</Text>
+            }} style={{
+                justifyContent: 'center',
+                backgroundColor: Color.colorCyan,
+                margin: 16,
+                borderRadius: 10,
+                height: 35
+            }}>
+                <Text style={{color: 'white', padding: 10}}>指令</Text>
             </TouchableOpacity>
         </View>
     }
@@ -242,38 +250,47 @@ export default class DevicesPager extends Component {
     parent(parent) {
         // console.log(parent)
         return <TouchableOpacity
-        onPress={() => {
-            this.show(parent.section)
-        }}
+            onPress={() => {
+                this.show(parent.section)
+            }}
         >
-        <View>
-        <View style={{backgroundColor: Color.line, height: 1, width: width}}/>
-        <View style={{backgroundColor: 'white', flexDirection: 'row', alignItems: 'center'}}>
-        <View style={{
-            width: 10,
-            height: 60,
-            elevation: 5,
-            backgroundColor: ColorGroup.stateColor[parent.section.state]
-        }}/>
-        <Text style={{
-            color: Color.content,
-            padding: 16,
-            fontSize: 15,
-            /*   borderTopWidth: 1,
-             borderTopColor: Color.line*/
-        }}>{parent.section.name}</Text>
+            <View>
+                <View style={{backgroundColor: Color.line, height: 1, width: width}}/>
+                <View style={{backgroundColor: 'white', flexDirection: 'row', alignItems: 'center'}}>
+                    <View style={{
+                        width: 10,
+                        height: 60,
+                        elevation: 5,
+                        backgroundColor: ColorGroup.stateColor[parent.section.state]
+                    }}/>
+                    <Text style={{
+                        color: Color.content,
+                        padding: 16,
+                        fontSize: 15,
+                        /*   borderTopWidth: 1,
+                         borderTopColor: Color.line*/
+                    }}>{parent.section.name}</Text>
 
-        </View>
-        <View style={{backgroundColor: Color.line, height: 1, width: width}}/>
-        </View>
-        <TouchableOpacity
-        style={{position: 'absolute', right: 0,  alignItems: 'center', justifyContent: 'center',backgroundColor:Color.colorCyan,margin: 16,borderRadius:10,height:35}}
-        onPress={() => {
-            this.dialog(parent)
-        }
-        }>
-        <Text style={{color: 'white', padding: 10}}>指令</Text>
-        </TouchableOpacity>
+                </View>
+                <View style={{backgroundColor: Color.line, height: 1, width: width}}/>
+            </View>
+            <TouchableOpacity
+                style={{
+                    position: 'absolute',
+                    right: 0,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: Color.colorCyan,
+                    margin: 16,
+                    borderRadius: 10,
+                    height: 35
+                }}
+                onPress={() => {
+                    this.dialog(parent)
+                }
+                }>
+                <Text style={{color: 'white', padding: 10}}>指令</Text>
+            </TouchableOpacity>
         </TouchableOpacity>
     }
 
@@ -281,73 +298,73 @@ export default class DevicesPager extends Component {
         console.log(child.index)
         //  console.log(child)
         return <TouchableOpacity
-        style={{backgroundColor:child.index%2===0? Color.background:'#B3E5FC',}}
-        onPress={
-            () => {
-                this.dialog(child)
-            }
-        }>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-        <View style={{
-            width: 15,
-            height: 15,
-            borderRadius: 10,
-            elevation: 5,
-            marginLeft: 16,
-            backgroundColor: ColorGroup.stateColor[child.item.state]
-        }}/>
-        <View style={{
-            padding: 16,
-            marginLeft: 16
-        }}>
-        <Text style={{color: 'black', fontSize: 18, marginRight: 16}}>{child.item.name}</Text>
-        <Text>{child.item.memo}</Text>
-        </View>
-        </View>
+            style={{backgroundColor: child.index % 2 === 0 ? Color.background : '#B3E5FC',}}
+            onPress={
+                () => {
+                    this.dialog(child)
+                }
+            }>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <View style={{
+                    width: 15,
+                    height: 15,
+                    borderRadius: 10,
+                    elevation: 5,
+                    marginLeft: 16,
+                    backgroundColor: ColorGroup.stateColor[child.item.state]
+                }}/>
+                <View style={{
+                    padding: 16,
+                    marginLeft: 16
+                }}>
+                    <Text style={{color: 'black', fontSize: 18, marginRight: 16}}>{child.item.name}</Text>
+                    <Text>{child.item.memo}</Text>
+                </View>
+            </View>
 
         </TouchableOpacity>
     }
 
     render() {
         return (
-        <View style={styles.container}>
-        {
-            (() => {
-                if (this.state.items.length === 0) {
-                    return <RefreshEmptyView isRefreshing={this.state.isRefreshing} onRefreshFunc={() => {
-                        this.feed()
-                    } }/>
-                } else return <SectionList
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={this.state.isRefreshing}
-                            onRefresh={() => this.feed()}
-                            tintColor={Color.colorBlueGrey}//ios
-                            title="刷新中..."//ios
-                            titleColor='white'
-                            colors={[Color.colorBlue]}
-                            progressBackgroundColor="white"
-                        />}
-                    ListHeaderComponent={() => this.header()}
-                    ListFooterComponent={() => <View style={{height: 55}}/>}
-                    keyExtractor={(item) => item.id}
-                    renderSectionHeader={(parent) => this.parent(parent)}
-                    renderItem={(child) => this.child(child) }
-                    sections={this.state.items}
-                />
+            <View style={styles.container}>
+                {
+                    (() => {
+                        if (this.state.items.length === 0) {
+                            return <RefreshEmptyView isRefreshing={this.state.isRefreshing} onRefreshFunc={() => {
+                                this.feed()
+                            } }/>
+                        } else return <SectionList
+                            refreshControl={
+                                <RefreshControl
+                                    refreshing={this.state.isRefreshing}
+                                    onRefresh={() => this.feed()}
+                                    tintColor={Color.colorBlueGrey}//ios
+                                    title="刷新中..."//ios
+                                    titleColor='white'
+                                    colors={[Color.colorBlue]}
+                                    progressBackgroundColor="white"
+                                />}
+                            ListHeaderComponent={() => this.header()}
+                            ListFooterComponent={() => <View style={{height: 55}}/>}
+                            keyExtractor={(item) => item.id}
+                            renderSectionHeader={(parent) => this.parent(parent)}
+                            renderItem={(child) => this.child(child) }
+                            sections={this.state.items}
+                        />
 
-            })()
-        }
-        <Loading visible={this.state.isLoading}/>
-        </View>
+                    })()
+                }
+                <Loading visible={this.state.isLoading}/>
+            </View>
         );
     }
-    }
+}
 
-    const styles = StyleSheet.create({
-        container: {
+const styles = StyleSheet.create({
+    container: {
         flex: 1,
         backgroundColor: '#eeeeee',
     },
 
-    });
+});

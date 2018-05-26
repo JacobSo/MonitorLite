@@ -14,6 +14,7 @@ export  default  class Application extends Component {
     static set = '';//
     static noset = '';//
     static reset = '';//
+    static loginTime = '';//
 
 
     static saveSingle(key, value) {
