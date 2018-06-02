@@ -25,6 +25,7 @@ import DialogAndroid from 'react-native-dialogs';
 import RefreshEmptyView from "../component/RefreshEmptyView";
 import * as TextGroup from "../utils/TextGroup";
 import DatePicker from '../component/DatePicker';
+import moment from "moment";
 
 const {width, height} = Dimensions.get('window');
 export default class AlarmPager extends Component {
@@ -47,19 +48,21 @@ export default class AlarmPager extends Component {
             alarmText: '全部',
             pageIndex: 0,
             isToadyData: true,
-            monthDate:(new Date().getMonth()+1)+''+new Date().getDate()
+            monthDate:moment().format('MMDD')
         };
     }
 
     componentDidMount() {
         console.log(App.loginTime)
-        console.log(App.loginTime.substring(4,7)+"="+this.state.monthDate)
+        console.log(App.loginTime.substring(4,8)+"="+this.state.monthDate)
         this.feed(false)
         this.interval = setInterval(() => {
             console.log('alarm feed')
-            if (this.state.isToadyData)
-                this.feed(false)
-        }, 1000 * 10);
+            if (this.state.isToadyData&&App.isNotify){
+                this.feed(false);
+                App.isNotify = false;
+            }
+        }, 1000 * 3);
     }
 
     componentWillUnmount() {
@@ -94,9 +97,12 @@ export default class AlarmPager extends Component {
         }
 
         this.setState({isRefreshing: true});
+        console.log(App.loginTime)
+        console.log(this.state.isToadyData)
         ApiService.findAlarm(
             this.state.userText,
-            this.state.isToadyData ? (App.loginTime.substring(3,6)===this.state.monthDate?App.loginTime:(this.getNowFormatDate().replace(/-/g, '') + '000001')): (this.state.beginTime.replace(/-/g, '') + '000001'),
+            this.state.isToadyData ? (App.loginTime.substring(4,8)===this.state.monthDate?
+                App.loginTime:(this.getNowFormatDate().replace(/-/g, '') + '000001')): (this.state.beginTime.replace(/-/g, '') + '000001'),
             this.state.isToadyData ?this.getNowFormatDate().replace(/-/g, '') + '235959':this.state.endTime.replace(/-/g, '') + '235959',
             this.state.areaId,
             this.state.alarmId,
@@ -237,9 +243,9 @@ export default class AlarmPager extends Component {
                 }}>
                     <Text style={{padding: 16}}>收起</Text></TouchableOpacity>
                 <TouchableOpacity onPress={() => {
+                    this.state.isToadyData = false
                     this.setState({
                         isSearch: false,
-                        isToadyData: false
                     });
                     this.feed(false);
                 }

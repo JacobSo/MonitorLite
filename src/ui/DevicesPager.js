@@ -17,14 +17,8 @@ import Loading from 'react-native-loading-spinner-overlay';
 import App from "../Application";
 import Color from "../utils/Color"
 import SnackBar from 'react-native-snackbar-dialog'
-import Toolbar from "../component/Toolbar";
 import RefreshEmptyView from "../component/RefreshEmptyView";
 import * as ColorGroup from "../utils/ColorGroup";
-import * as TextGroup from "../utils/TextGroup";
-import PushNotificationAndroid from 'react-native-push-notification'
-import {NavigationActions, StackActions} from 'react-navigation';
-
-import DialogAndroid from 'react-native-dialogs';
 import AndroidModule from '../native/AndoridCommontModule'
 
 const PushNotification = require('react-native-push-notification');
@@ -46,14 +40,15 @@ export default class DevicesPager extends Component {
     }
 
     componentDidMount() {
-      //  console.log(this.props.nav)
+        //  console.log(this.props.nav)
         this.state.items = this.props.nav.state.params.data;
         this.state.chaos = JSON.parse(JSON.stringify(this.props.nav.state.params.data));
         this.init(true);
         this.feed();
         this.interval = setInterval(() => {
             this.feed()
-        }, 1000 * 15);
+        }, 1000 * 9);
+
     }
 
     componentWillUnmount() {
@@ -102,60 +97,101 @@ export default class DevicesPager extends Component {
     }
 
     dialog(data) {
+        if (App.noset === 0 && App.reset === 0 && App.set === 0) {
+            SnackBar.show("没有权限")
+            return
+        }
+        let nameColor = "";
+        /*        Color.colorDeepPurple+','+
+         Color.colorBlue+','+
+         Color.colorRed+','+
+         Color.colorLightGreen+','+
+         Color.colorBrown+',';*/
+
         //   console.log(data)
         let rightGroup = ''
-        if (App.noset === 1)
+        if (App.noset === 1) {
             rightGroup += '撤防,';
-        if (App.set === 1)
+            nameColor = nameColor + Color.colorDeepPurple + ','
+        }
+
+        if (App.set === 1) {
             rightGroup += '布防,';
-        if (data.section && data.item) {
-            if (data.item.type === 1 || data.item.type === 2) {
-                rightGroup += '高压布防,';
-                rightGroup += '低压布防,';
-            } else if (data.item.type === 3) {
-                rightGroup += '张力高压布防,';
-                rightGroup += '张力布防,';
-            }
-        } else {
-            if (data.section) {
-                if (data.section.type === 1) {
+            nameColor = nameColor + Color.colorBlue + ','
+            if (data.section && data.item) {
+                if (data.item.type === 1 || data.item.type === 2) {
                     rightGroup += '高压布防,';
                     rightGroup += '低压布防,';
-                } else if (data.section.type === 3) {
+                    nameColor = nameColor + Color.colorRed + ',' + Color.colorLightGreen + ','
+                } else if (data.item.type === 3) {
                     rightGroup += '张力高压布防,';
                     rightGroup += '张力布防,';
+                    nameColor = nameColor + Color.colorRed + ',' + Color.colorLightGreen + ','
                 }
             } else {
-                if (data.type === 1) {
-                    rightGroup += '高压布防,';
-                    rightGroup += '低压布防,';
-                } else if (data.type === 3) {
-                    rightGroup += '张力高压布防,';
-                    rightGroup += '张力布防,';
+                if (data.section) {
+                    if (data.section.type === 1) {
+                        rightGroup += '高压布防,';
+                        rightGroup += '低压布防,';
+                        nameColor = nameColor + Color.colorRed + ',' + Color.colorLightGreen + ','
+                    } else if (data.section.type === 3) {
+                        rightGroup += '张力高压布防,';
+                        rightGroup += '张力布防,';
+                        nameColor = nameColor + Color.colorRed + ',' + Color.colorLightGreen + ','
+                    }
+                } else {
+                    if (data.type === 1) {
+                        rightGroup += '高压布防,';
+                        rightGroup += '低压布防,';
+                        nameColor = nameColor + Color.colorRed + ',' + Color.colorLightGreen + ','
+                    } else if (data.type === 3) {
+                        rightGroup += '张力高压布防,';
+                        rightGroup += '张力布防,';
+                        nameColor = nameColor + Color.colorRed + ',' + Color.colorLightGreen + ','
+                    }
                 }
             }
-
         }
-        if (App.reset === 1)
-            rightGroup += '复位,';
+
+
+        if (App.reset === 1) {
+            rightGroup += '复位';
+            nameColor = nameColor + Color.colorBrown
+        }
 
         AndroidModule.show(!data.item ? ('向【' + (data.section ? data.section.name : data.name) + '】发送指令') :
-                ('向【' + data.section.name + '】下的【' + data.item.name + '】发送指令'),
-            rightGroup.substring(0, rightGroup.length - 1), ColorGroup.nameColor, (result) => {
-                this.command(data, result)
+                ('向【' + data.section.name + '】下的【' + data.item.name + '】发送指令'), rightGroup, nameColor,
+            (result) => {
+                console.log();
+                let temp = rightGroup.split(',')
+                if (temp[result] === '撤防') {
+                    this.command(data, 0)
+                } else if (temp[result] === '布防') {
+                    this.command(data, 1)
+                } else if (temp[result] === '高压布防' || temp[result] === '张力高压布防') {
+                    this.command(data, 2)
+                } else if (temp[result] === '低压布防' || temp[result] === '张力布防') {
+                    this.command(data, 3)
+                } else if (temp[result] === '复位') {//
+                    this.command(data, 4)
+                }
+
             });
     }
 
     notification(num) {
-        PushNotification.configure({
-            onNotification: function (notification) {
-                console.log('NOTIFICATION:', notification);
-            },
-            popInitialNotification: true,
-            requestPermissions: true,
-        });
+        console.log("send notification")
+        App.isNotify = true;
+        PushNotification.cancelAllLocalNotifications()
+        /*        PushNotification.configure({
+         onNotification: function (notification) {
+         console.log('NOTIFICATION:', notification);
+         },
+         popInitialNotification: true,
+         requestPermissions: true,
+         });*/
         PushNotification.localNotification({
-            message: "周界平台收到" + num + "条报警信息", // (required)
+            message: "收到" + num + "条报警信息", // (required)
             data: {
                 nav: this.props.navigation
             }
@@ -298,7 +334,7 @@ export default class DevicesPager extends Component {
         console.log(child.index)
         //  console.log(child)
         return <TouchableOpacity
-            style={{backgroundColor: child.index % 2 === 0 ? Color.background : '#B3E5FC',}}
+            style={{backgroundColor: child.index % 2 === 0 ? '#B3E5FC' : Color.background,}}
             onPress={
                 () => {
                     this.dialog(child)

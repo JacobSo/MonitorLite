@@ -19,6 +19,7 @@ import Hoshi from "react-native-textinput-effects/lib/Hoshi";
 import Color from "../utils/Color"
 import SnackBar from 'react-native-snackbar-dialog'
 import App from '../Application';
+import moment from "moment";
 
 const {width, height} = Dimensions.get('window');
 export default class LoginPager extends Component {
@@ -26,30 +27,29 @@ export default class LoginPager extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            isWelcome: false,
+            isWelcome: true,
             isLoading: false,
-            baseUrl: '123.207.15.167',//'123.207.15.167',
-            platformId: '1001',//1001
-            user: 'admin',
-            pwd: 'admin',
+            baseUrl: '',//'123.207.15.167',
+            platformId: '',//1001
+            user: '',
+            pwd: '',
         };
     }
 
     componentDidMount() {
-        /*        setTimeout(
-         () => {
-         this.setState({isWelcome: false})
-         },
-         2000
-         );*/
-        /*        App.initAccount(() => {
-         this.setState({
-         baseUrl: App.baseUrl,
-         platformId: App.platformId,
-         user: App.user
-         })
-         })*/
-
+        setTimeout(
+            () => {
+                this.setState({isWelcome: false})
+            },
+            2000
+        );
+        App.initAccount(() => {
+            this.setState({
+                baseUrl: App.baseUrl,
+                platformId: App.platformId,
+                user: App.user
+            })
+        })
     }
 
     login() {
@@ -72,8 +72,7 @@ export default class LoginPager extends Component {
                         responseJson.noset,
                         responseJson.reset,
                     );
-                    var date = new Date()
-                    App.loginTime = (date.getFullYear())+''+(date.getMonth()+1)+''+date.getDate()+''+date.getHours()+''+date.getMinutes()+''+date.getMilliseconds()
+                    App.loginTime =moment().format('YYYYMMDDHHmmss')
                     const resetAction = StackActions.reset({
                         index: 0,
                         actions: [
