@@ -1,6 +1,10 @@
 package com.monitorlite;
 
+import android.os.Bundle;
+
 import com.facebook.react.ReactActivity;
+
+import cn.jpush.android.api.JPushInterface;
 
 public class MainActivity extends ReactActivity {
 
@@ -11,5 +15,11 @@ public class MainActivity extends ReactActivity {
     @Override
     protected String getMainComponentName() {
         return "MonitorLite";
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+     //   JPushInterface.init(this);
     }
 }

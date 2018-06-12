@@ -13,6 +13,8 @@ import com.facebook.soloader.SoLoader;
 import java.util.Arrays;
 import java.util.List;
 
+import cn.jpush.reactnativejpush.JPushPackage;
+
 public class MainApplication extends Application implements ReactApplication {
     private static final ReactModulePackage reactModulePackage = new ReactModulePackage();
     private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
@@ -27,6 +29,7 @@ public class MainApplication extends Application implements ReactApplication {
                     new MainReactPackage(),
                     new ReactNativePushNotificationPackage(),
                     new ReactNativeDialogsPackage(),
+                    new JPushPackage(false,false),
                     reactModulePackage
             );
         }

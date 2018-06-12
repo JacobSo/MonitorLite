@@ -7,27 +7,17 @@
 import React, {Component} from 'react';
 import {
     BackHandler,
-    Dimensions,
     StyleSheet,
-    Text,
-    View, TouchableOpacity, KeyboardAvoidingView, ScrollView
+    View
 } from 'react-native';
-import ApiService from "../api/ApiService";
-import Loading from 'react-native-loading-spinner-overlay';
-import ScrollableTabView, {DefaultTabBar,} from 'react-native-scrollable-tab-view';
+import ScrollableTabView from 'react-native-scrollable-tab-view';
 import Color from "../utils/Color"
-import SnackBar from 'react-native-snackbar-dialog'
 import Toolbar from "../component/Toolbar";
 import DevicesPager from "./DevicesPager";
 import NotificationPager from "./NotifactionPager";
-import App from '../Application'
-import LoginPager from "./LoginPager";
-import PopupDialog, { SlideAnimation } from 'react-native-popup-dialog';
+import JPushModule from 'jpush-react-native'
+import App from '../Application';
 
-const {width, height} = Dimensions.get('window');
-const slideAnimation = new SlideAnimation({
-    slideFrom: 'bottom',
-});
 export default class MainPager extends Component {
 
     constructor(props) {
@@ -39,17 +29,51 @@ export default class MainPager extends Component {
             user: 'admin',
             pwd: 'admin',
 
-            alarmItems:[],
+            alarmItems: [],
 
         };
+        this.jumpSecondActivity = this.jumpSecondActivity.bind(this)
     }
-    componentWillMount(){
-        BackHandler.addEventListener('hardwareBackPress', function() {
+
+
+    componentWillMount() {
+        BackHandler.addEventListener('hardwareBackPress', function () {
             return true;
         });
     }
-        componentDidMount() {
+    componentWillUnmount () {
+        JPushModule.removeReceiveOpenNotificationListener('openNotification')
+        JPushModule.clearAllNotifications()
+    }
+    componentDidMount() {
+        JPushModule.initPush()
+        JPushModule.setAlias(App.platformId, map => {
+            if (map.errorCode === 0) {
+                console.log('set alias succeed')
+            } else {
+                console.log('set alias failed, errorCode: ' + map.errorCode)
+            }
+        })
+        JPushModule.notifyJSDidLoad((resultCode) => {
+            if (resultCode === 0) {
+                console.log("notifyJSDidLoad:success")
+            }
+        });
+        JPushModule.addReceiveOpenNotificationListener(map => {
+            console.log('Opening notification!')
+            console.log('map.extra: ' + map.extras)
+            this.jumpSecondActivity()
+        })
+    }
 
+    jumpSecondActivity() {
+        this.props.nav.navigate('alarm', {
+            data: this.refs.devices.state.alarmItems,
+            initData: this.refs.devices.state.topItem,
+            requestFunc: () => {
+                return this.refs.devices.state.alarmItems.reverse()
+            }
+        })
     }
 
     render() {
@@ -57,7 +81,7 @@ export default class MainPager extends Component {
             <View style={styles.container}>
                 <Toolbar
                     elevation={0}
-                    title={this.props.isShowLogo?["周界管理系统","周界管理系统"]:["  周界管理系统"]}
+                    title={this.props.isShowLogo ? ["周界管理系统", "周界管理系统"] : ["  周界管理系统"]}
                     color={Color.colorBlue}
                     isHomeUp={false}
                     isAction={true}
@@ -67,12 +91,12 @@ export default class MainPager extends Component {
                         () => {
                             this.props.nav.goBack(null)
                         },
-                        ()=>{
-                        console.log(this.refs.devices.state.chaos)
+                        () => {
+                            console.log(this.refs.devices.state.chaos)
                             this.props.nav.navigate('alarm', {
                                 data: this.refs.devices.state.alarmItems,
-                                initData:this.refs.devices.state.topItem,
-                                requestFunc:()=>{
+                                initData: this.refs.devices.state.topItem,
+                                requestFunc: () => {
                                     return this.refs.devices.state.alarmItems.reverse()
                                 }
                             })
@@ -87,7 +111,7 @@ export default class MainPager extends Component {
                     tabBarUnderlineStyle={{backgroundColor: 'white',}}>
 
                     <DevicesPager tabLabel='设备' nav={this.props.nav} ref="devices"/>
-                    <NotificationPager tabLabel='通知'  nav={this.props.nav}/>
+                    <NotificationPager tabLabel='通知' nav={this.props.nav}/>
                 </ScrollableTabView>
 
             </View>

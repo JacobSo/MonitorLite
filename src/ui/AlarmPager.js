@@ -116,12 +116,12 @@ export default class AlarmPager extends Component {
 
                     if (isLoad) {
                         this.setState({
-                            items: this.state.items.concat(responseJson.info).reverse(),
+                            items: this.state.items.concat(responseJson.info),
                             pageIndex: responseJson.LastId
                         })
                     } else {
                         this.setState({
-                            items: responseJson.info.reverse(),
+                            items:responseJson.info,
                             pageIndex: responseJson.LastId
                         })
                     }
@@ -305,7 +305,7 @@ export default class AlarmPager extends Component {
                                 />}
                             horizontal={false}
                             keyExtractor={(item, index) => index.toString()}
-                            data={this.state.items.reverse()}
+                            data={this.state.items}
                             extraData={this.state}
                             ListHeaderComponent={<View/>}
                             ListFooterComponent={
@@ -334,6 +334,7 @@ export default class AlarmPager extends Component {
                                     width: width - 32
                                 }}
                                 onPress={() => {
+                                    console.log(ApiService.getPic(item.areaid, item.alarmid, item.id))
                                     this.props.nav.navigate('web', {
                                         title: '报警详细',
                                         newsUrl: ApiService.getPic(item.areaid, item.alarmid, item.id)

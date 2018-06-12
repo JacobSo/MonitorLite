@@ -206,9 +206,9 @@ export default class DevicesPager extends Component {
                 if (responseJson.Code === 0 || responseJson.Code === '0') {
                     this.state.items = responseJson.info;
                     this.state.chaos = JSON.parse(JSON.stringify(responseJson.info));
-                    if (responseJson.alarm && responseJson.alarm.length !== 0) {
+                  /*  if (responseJson.alarm && responseJson.alarm.length !== 0) {
                         this.notification(responseJson.alarm.length);
-                    }
+                    }*/
                     this.state.alarmItems = this.state.alarmItems.concat(responseJson.alarm);
                     this.init(false);
                 } else {
