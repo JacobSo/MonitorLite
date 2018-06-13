@@ -29,10 +29,10 @@ export default class LoginPager extends Component {
         this.state = {
             isWelcome: true,
             isLoading: false,
-            baseUrl: '123.207.15.167',//'123.207.15.167',
-            platformId: '1001',//1001
-            user: 'admin',
-            pwd: 'admin',
+            baseUrl: '',//'123.207.15.167',
+            platformId: '',//1001
+            user: '',
+            pwd: '',
         };
     }
 
@@ -83,8 +83,6 @@ export default class LoginPager extends Component {
                                 }
                             })
                         ],
-
-
                     });
                     this.props.nav.dispatch(resetAction)
                     //   this.props.nav.navigate('main')

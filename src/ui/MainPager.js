@@ -24,10 +24,6 @@ export default class MainPager extends Component {
         super(props);
         this.state = {
             isLoading: false,
-            baseUrl: '123.207.15.167',
-            platformId: '1001',
-            user: 'admin',
-            pwd: 'admin',
 
             alarmItems: [],
 
@@ -47,6 +43,13 @@ export default class MainPager extends Component {
     }
     componentDidMount() {
         JPushModule.initPush()
+        JPushModule.setAlias('', map => {
+            if (map.errorCode === 0) {
+                console.log('set alias succeed')
+            } else {
+                console.log('set alias failed, errorCode: ' + map.errorCode)
+            }
+        })
         JPushModule.setAlias(App.platformId, map => {
             if (map.errorCode === 0) {
                 console.log('set alias succeed')

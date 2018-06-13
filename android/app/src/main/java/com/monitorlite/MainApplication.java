@@ -29,7 +29,7 @@ public class MainApplication extends Application implements ReactApplication {
                     new MainReactPackage(),
                     new ReactNativePushNotificationPackage(),
                     new ReactNativeDialogsPackage(),
-                    new JPushPackage(false,false),
+                    new JPushPackage(true,true),
                     reactModulePackage
             );
         }
