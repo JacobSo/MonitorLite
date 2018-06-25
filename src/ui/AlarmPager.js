@@ -48,17 +48,17 @@ export default class AlarmPager extends Component {
             alarmText: '全部',
             pageIndex: 0,
             isToadyData: true,
-            monthDate:moment().format('MMDD')
+            monthDate: moment().format('MMDD')
         };
     }
 
     componentDidMount() {
         console.log(App.loginTime)
-        console.log(App.loginTime.substring(4,8)+"="+this.state.monthDate)
+        console.log(App.loginTime.substring(4, 8) + "=" + this.state.monthDate)
         this.feed(false)
         this.interval = setInterval(() => {
-            console.log('alarm feed')
-            if (this.state.isToadyData&&App.isNotify){
+            if (this.state.isToadyData && App.isNotify) {
+                console.log('alarm feed')
                 this.feed(false);
                 App.isNotify = false;
             }
@@ -101,9 +101,9 @@ export default class AlarmPager extends Component {
         console.log(this.state.isToadyData)
         ApiService.findAlarm(
             this.state.userText,
-            this.state.isToadyData ? (App.loginTime.substring(4,8)===this.state.monthDate?
-                App.loginTime:(this.getNowFormatDate().replace(/-/g, '') + '000001')): (this.state.beginTime.replace(/-/g, '') + '000001'),
-            this.state.isToadyData ?this.getNowFormatDate().replace(/-/g, '') + '235959':this.state.endTime.replace(/-/g, '') + '235959',
+            this.state.isToadyData ? (App.loginTime.substring(4, 8) === this.state.monthDate ?
+                App.loginTime : (this.getNowFormatDate().replace(/-/g, '') + '000001')) : (this.state.beginTime.replace(/-/g, '') + '000001'),
+            this.state.isToadyData ? this.getNowFormatDate().replace(/-/g, '') + '235959' : this.state.endTime.replace(/-/g, '') + '235959',
             this.state.areaId,
             this.state.alarmId,
             this.state.alarmType,
@@ -121,7 +121,7 @@ export default class AlarmPager extends Component {
                         })
                     } else {
                         this.setState({
-                            items:responseJson.info,
+                            items: responseJson.info,
                             pageIndex: responseJson.LastId
                         })
                     }
@@ -262,7 +262,7 @@ export default class AlarmPager extends Component {
             <View style={styles.container}>
                 <Toolbar
                     elevation={5}
-                    title={[this.state.isToadyData?"报警信息":'搜索报警']}
+                    title={[this.state.isToadyData ? "报警信息" : '搜索报警']}
                     color={Color.colorBlue}
                     isHomeUp={true}
                     isAction={true}

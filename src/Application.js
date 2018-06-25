@@ -16,6 +16,7 @@ export  default  class Application extends Component {
     static reset = '';//
     static loginTime = '';//
     static isNotify = false;
+    static alias = '';
 
 
     static saveSingle(key, value) {
@@ -48,6 +49,7 @@ export  default  class Application extends Component {
                     if (key === "set") this.set = value;
                     if (key === "noset") this.noset = value;
                     if (key === "reset") this.reset = value;
+                    if (key === "alias") this.alias = value;
 
                 });
             }).then(callback).catch((err) => {
@@ -56,7 +58,7 @@ export  default  class Application extends Component {
         });
     }
 
-    static saveAccount(user, pwd, platformId, baseUrl, level, right1, right2, right3) {
+    static saveAccount(user, pwd, platformId, baseUrl, level, right1, right2, right3,alias) {
         this.user = user;
         this.pwd = pwd;
         this.platformId = platformId;
@@ -65,6 +67,7 @@ export  default  class Application extends Component {
         this.set = right1;
         this.noset = right2;
         this.reset = right3;
+        this.alias = alias;
 
         AsyncStorage.multiSet(
             [
@@ -76,6 +79,7 @@ export  default  class Application extends Component {
                 ['set', right1 + ""],
                 ['noset', right2 + ""],
                 ['reset', right3 + ""],
+                ['alias', alias + ""],
             ])
             .then((err) => {
                     console.log(err);

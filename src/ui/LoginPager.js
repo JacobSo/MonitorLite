@@ -20,6 +20,7 @@ import Color from "../utils/Color"
 import SnackBar from 'react-native-snackbar-dialog'
 import App from '../Application';
 import moment from "moment";
+import JPushModule from 'jpush-react-native'
 
 const {width, height} = Dimensions.get('window');
 export default class LoginPager extends Component {
@@ -37,6 +38,15 @@ export default class LoginPager extends Component {
     }
 
     componentDidMount() {
+      //  JPushModule.initPush()
+       /* JPushModule.setAlias("null", map => {
+            if (map.errorCode === 0) {
+                console.log('set alias succeed')
+            } else {
+                console.log('set alias failed, errorCode: ' + map.errorCode)
+            }
+        })*/
+
         setTimeout(
             () => {
                 this.setState({isWelcome: false})
@@ -71,8 +81,9 @@ export default class LoginPager extends Component {
                         responseJson.set,
                         responseJson.noset,
                         responseJson.reset,
+                        responseJson.alias,
                     );
-                    App.loginTime =moment().format('YYYYMMDDHHmmss')
+                    App.loginTime = moment().format('YYYYMMDDHHmmss')
                     const resetAction = StackActions.reset({
                         index: 0,
                         actions: [

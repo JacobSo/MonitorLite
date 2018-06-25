@@ -17,7 +17,7 @@ import DevicesPager from "./DevicesPager";
 import NotificationPager from "./NotifactionPager";
 import JPushModule from 'jpush-react-native'
 import App from '../Application';
-
+import AndroidMoudle from '../native/AndoridCommontModule'
 export default class MainPager extends Component {
 
     constructor(props) {
@@ -37,22 +37,18 @@ export default class MainPager extends Component {
             return true;
         });
     }
-    componentWillUnmount () {
+
+    componentWillUnmount() {
+        JPushModule.removeReceiveNotificationListener('receiveNotification')
         JPushModule.removeReceiveOpenNotificationListener('openNotification')
         JPushModule.clearAllNotifications()
     }
+
     componentDidMount() {
         JPushModule.initPush()
-        JPushModule.setAlias('', map => {
+        JPushModule.setAlias(App.alias, map => {
             if (map.errorCode === 0) {
-                console.log('set alias succeed')
-            } else {
-                console.log('set alias failed, errorCode: ' + map.errorCode)
-            }
-        })
-        JPushModule.setAlias(App.platformId, map => {
-            if (map.errorCode === 0) {
-                console.log('set alias succeed')
+                console.log('set alias succeed:'+App.alias)
             } else {
                 console.log('set alias failed, errorCode: ' + map.errorCode)
             }
@@ -62,6 +58,10 @@ export default class MainPager extends Component {
                 console.log("notifyJSDidLoad:success")
             }
         });
+        JPushModule.addReceiveNotificationListener((map)=>{
+            console.log("addReceiveNotificationListener")
+            App.isNotify = true;
+        });
         JPushModule.addReceiveOpenNotificationListener(map => {
             console.log('Opening notification!')
             console.log('map.extra: ' + map.extras)
@@ -70,6 +70,7 @@ export default class MainPager extends Component {
     }
 
     jumpSecondActivity() {
+        App.isNotify = true;
         this.props.nav.navigate('alarm', {
             data: this.refs.devices.state.alarmItems,
             initData: this.refs.devices.state.topItem,

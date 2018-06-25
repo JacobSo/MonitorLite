@@ -17,6 +17,8 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import cn.jpush.android.api.JPushInterface;
+
 /**
  * Created by Administrator on 2017/3/28.
  */
@@ -40,6 +42,11 @@ public class CommonModule extends ReactContextBaseJavaModule {
         return constants;
     }
 
+
+    @ReactMethod
+    public void resumePush() {
+        JPushInterface.resumePush(getCurrentActivity());
+    }
 
     //demo
     @ReactMethod
