@@ -347,7 +347,7 @@ export default class AlarmPager extends Component {
                                     margin: 16,
                                     alignItems: 'center'
                                 }}>
-                                    <Text style={{color: 'black', fontSize: 18}}>{TextGroup.alarmText[item.type]}</Text>
+                                    <Text style={{color: 'black', fontSize: 18}}>{item.type>31?item.typename:TextGroup.alarmText[item.type]}</Text>
                                     <View
                                         style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
                                         <Text >{item.user}</Text>

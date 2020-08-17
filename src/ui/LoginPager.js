@@ -30,10 +30,10 @@ export default class LoginPager extends Component {
         this.state = {
             isWelcome: true,
             isLoading: false,
-            baseUrl: '',//'123.207.15.167',
-            platformId: '',//1001
-            user: '',
-            pwd: '',
+            baseUrl: '',//123.207.15.167
+            platformId: '',//2123
+            user: '',//admin
+            pwd: '',//admin
         };
     }
 
@@ -54,16 +54,21 @@ export default class LoginPager extends Component {
             2000
         );
         App.initAccount(() => {
+
             this.setState({
                 baseUrl: App.baseUrl,
                 platformId: App.platformId,
-                user: App.user
+                user: App.user,
+                pwd: App.pwd
             })
+            if(App.baseUrl&&App.platformId&&App.user&&App.pwd){
+                this.login()
+            }
         })
     }
 
     login() {
-        if (this.state.baseUrl === 0 || this.state.user.length === 0 || this.state.pwd.length === 0 || this.state.platformId.length === 0) {
+        if (this.state.baseUrl.length === 0 || this.state.user.length === 0 || this.state.pwd.length === 0 || this.state.platformId.length === 0) {
             SnackBar.show("信息不能为空");
             return
         }

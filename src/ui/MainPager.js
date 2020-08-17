@@ -8,7 +8,8 @@ import React, {Component} from 'react';
 import {
     BackHandler,
     StyleSheet,
-    View
+    View,
+    Alert
 } from 'react-native';
 import ScrollableTabView from 'react-native-scrollable-tab-view';
 import Color from "../utils/Color"
@@ -17,7 +18,9 @@ import DevicesPager from "./DevicesPager";
 import NotificationPager from "./NotifactionPager";
 import JPushModule from 'jpush-react-native'
 import App from '../Application';
-import AndroidMoudle from '../native/AndoridCommontModule'
+import AndroidModule from '../native/AndoridCommontModule'
+import {NavigationActions, StackActions} from 'react-navigation';
+
 export default class MainPager extends Component {
 
     constructor(props) {
@@ -48,7 +51,7 @@ export default class MainPager extends Component {
         JPushModule.initPush()
         JPushModule.setAlias(App.alias, map => {
             if (map.errorCode === 0) {
-                console.log('set alias succeed:'+App.alias)
+                console.log('set alias succeed:' + App.alias)
             } else {
                 console.log('set alias failed, errorCode: ' + map.errorCode)
             }
@@ -58,7 +61,7 @@ export default class MainPager extends Component {
                 console.log("notifyJSDidLoad:success")
             }
         });
-        JPushModule.addReceiveNotificationListener((map)=>{
+        JPushModule.addReceiveNotificationListener((map) => {
             console.log("addReceiveNotificationListener")
             App.isNotify = true;
         });
@@ -90,7 +93,7 @@ export default class MainPager extends Component {
                     isHomeUp={false}
                     isAction={true}
                     isActionByText={false}
-                    actionArray={[require("../drawable/alarm.png")]}
+                    actionArray={[require("../drawable/alarm.png"), require("../drawable/main_distribute.png")]}
                     functionArray={[
                         () => {
                             this.props.nav.goBack(null)
@@ -104,6 +107,44 @@ export default class MainPager extends Component {
                                     return this.refs.devices.state.alarmItems.reverse()
                                 }
                             })
+                        },
+                        () => {
+                            Alert.alert('切换用户', '是否切换用户', [
+                                {
+                                    text: '取消',
+                                    onPress: () => console.log('Cancel Pressed'),
+                                    style: 'cancel'
+                                },
+                                {
+                                    text: '确认', onPress: () => {
+                                    App.saveAccount(
+                                        "",
+                                        "",
+                                        "",
+                                        "",
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                    );
+                                    const resetAction = StackActions.reset({
+                                        index: 0,
+                                        actions: [
+                                            NavigationActions.navigate({
+                                                routeName: 'launcher', params: {}
+                                            })
+                                        ],
+                                    });
+                                    this.props.nav.dispatch(resetAction)
+                                  //  this.props.nav.navigate('login')
+                                }
+                                },
+
+                            ]);
+
+
+
                         }
                     ]}/>
                 <ScrollableTabView
