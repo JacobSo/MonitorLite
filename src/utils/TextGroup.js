@@ -5,7 +5,7 @@
 // name=周界安全管理平台
 //
 //     [ClientName]
-// name=Electric Fence Software
+// name=Electric Fence Software/ EFence
 //
 //
 //
