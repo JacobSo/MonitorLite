@@ -41,11 +41,11 @@ export default class AlarmPager extends Component {
             endTime: this.getNowFormatDate(),
             userText: '',
             alarmType: 255,
-            alarmTypeText: '全部',
+            alarmTypeText: TextGroup.all,
             areaId: 0,
             areaText: this.props.initData.name,
             alarmId: 0,
-            alarmText: '全部',
+            alarmText: TextGroup.all,
             pageIndex: 0,
             isToadyData: true,
             monthDate: moment().format('MMDD')
@@ -112,7 +112,7 @@ export default class AlarmPager extends Component {
                 this.setState({isRefreshing: false})
                 if (responseJson.Code === 0 || responseJson.Code === "0") {
                     if (responseJson.info.length === 0)
-                        SnackBar.show('没有报警信息')
+                        SnackBar.show(TextGroup.noAlarm)
 
                     if (isLoad) {
                         this.setState({
@@ -140,9 +140,9 @@ export default class AlarmPager extends Component {
     dialog() {
         let dialog = new DialogAndroid();
         dialog.set({
-            title: '警报类型',
+            title: TextGroup.alarmType,
             items: TextGroup.stateSelectText,
-            positiveText: '取消',
+            positiveText: TextGroup.confirm[1],
             positiveColor: Color.colorBlue,
             itemsCallback: (index, name) => {
                 this.setState({
@@ -167,16 +167,16 @@ export default class AlarmPager extends Component {
                     }}
                     date={this.state.beginTime}
                     mode="date"
-                    placeholder="选择"
+                    placeholder={TextGroup.selectHint}
                     format="YYYY-MM-DD"
-                    confirmBtnText="确认"
-                    cancelBtnText="取消"
+                    confirmBtnText={TextGroup.confirm[0]}
+                    cancelBtnText={TextGroup.confirm[1]}
                     showIcon={true}
                     onDateChange={(date) => {
                         this.setState({beginTime: date});
                     }}
                 />
-                <Text style={{position: 'absolute', left: 16, color: 'black'}}>开始时间</Text>
+                <Text style={{position: 'absolute', left: 16, color: 'black'}}>{TextGroup.beginTime}</Text>
 
             </View>
             <View style={styles.itemStyle}>
@@ -190,22 +190,22 @@ export default class AlarmPager extends Component {
                     }}
                     date={this.state.endTime}
                     mode="date"
-                    placeholder="选择"
+                    placeholder={TextGroup.selectHint}
                     format="YYYY-MM-DD"
-                    confirmBtnText="确认"
-                    cancelBtnText="取消"
+                    confirmBtnText={TextGroup.confirm[0]}
+                    cancelBtnText={TextGroup.confirm[1]}
                     showIcon={true}
                     onDateChange={(date) => {
                         this.setState({endTime: date});
                     }}
                 />
-                <Text style={{position: 'absolute', left: 16, color: 'black'}}>结束时间</Text>
+                <Text style={{position: 'absolute', left: 16, color: 'black'}}>{TextGroup.endTime}</Text>
 
             </View>
             <View style={styles.itemStyle}>
-                <Text style={{marginLeft: 16}}>操作人</Text>
+                <Text style={{marginLeft: 16}}>{TextGroup.operator}</Text>
                 <TextInput style={styles.textInput}
-                           placeholder="填写"
+                           placeholder={TextGroup.fillHint}
                            returnKeyType={'done'}
                            keyboardType={'numeric'}
                            blurOnSubmit={true}
@@ -217,7 +217,7 @@ export default class AlarmPager extends Component {
                                   this.dialog()
                               }
                               }>
-                <Text style={{marginLeft: 16}}>警报类型</Text>
+                <Text style={{marginLeft: 16}}>{TextGroup.alarmType}</Text>
                 <Text style={{marginRight: 16, color: 'black'}}>{this.state.alarmTypeText}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.itemStyle}
@@ -234,14 +234,14 @@ export default class AlarmPager extends Component {
                                   })
                               }
                               }>
-                <Text style={{marginLeft: 16}}>地点</Text>
+                <Text style={{marginLeft: 16}}>{TextGroup.place}</Text>
                 <Text style={{marginRight: 16}}>{'【' + this.state.areaText + '】【' + this.state.alarmText + '】'}</Text>
             </TouchableOpacity>
             <View style={{position: 'absolute', right: 0, bottom: 0, flexDirection: 'row'}}>
                 <TouchableOpacity onPress={  () => {
                     this.setState({isSearch: !this.state.isSearch})
                 }}>
-                    <Text style={{padding: 16}}>收起</Text></TouchableOpacity>
+                    <Text style={{padding: 16}}>{TextGroup.collopse}</Text></TouchableOpacity>
                 <TouchableOpacity onPress={() => {
                     this.state.isToadyData = false
                     this.setState({
@@ -250,7 +250,7 @@ export default class AlarmPager extends Component {
                     this.feed(false);
                 }
                 }>
-                    <Text style={{color: Color.colorBlue, padding: 16}}>查询警报</Text>
+                    <Text style={{color: Color.colorBlue, padding: 16}}>{TextGroup.findAlarm}</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -262,7 +262,7 @@ export default class AlarmPager extends Component {
             <View style={styles.container}>
                 <Toolbar
                     elevation={5}
-                    title={[this.state.isToadyData ? "报警信息" : '搜索报警']}
+                    title={[this.state.isToadyData ? TextGroup.alarmInfo : TextGroup.alarmSearch]}
                     color={Color.colorBlue}
                     isHomeUp={true}
                     isAction={true}
@@ -298,7 +298,7 @@ export default class AlarmPager extends Component {
                                         this.feed(false)
                                     }}
                                     tintColor={Color.colorBlueGrey}//ios
-                                    title="刷新中..."//ios
+                                    title={TextGroup.refresh}//ios
                                     titleColor='white'
                                     colors={[Color.colorBlue]}
                                     progressBackgroundColor="white"
@@ -323,7 +323,7 @@ export default class AlarmPager extends Component {
                                         marginBottom: 55,
                                     }}
                                     onPress={() => this.feed(true)}>
-                                    <Text>加载更多</Text>
+                                    <Text>{TextGroup.load}</Text>
                                 </TouchableOpacity>}
                             renderItem={({item, index}) => <TouchableOpacity
                                 style={{
@@ -336,7 +336,7 @@ export default class AlarmPager extends Component {
                                 onPress={() => {
                                     console.log(ApiService.getPic(item.areaid, item.alarmid, item.id))
                                     this.props.nav.navigate('web', {
-                                        title: '报警详细',
+                                        title: TextGroup.alarmDetail,
                                         newsUrl: ApiService.getPic(item.areaid, item.alarmid, item.id)
                                     })
                                 }
@@ -354,11 +354,11 @@ export default class AlarmPager extends Component {
                                         <Text style={{marginLeft: 10,}}>{item.time}</Text>
                                     </View>
                                 </View>
-                                <Text style={{marginLeft: 10}}>{'警报详情：' + item.alarminfo}</Text>
+                                <Text style={{marginLeft: 10}}>{TextGroup.alarmDetail+'：' + item.alarminfo}</Text>
                                 <Text style={{
                                     marginLeft: 10,
                                     marginBottom: 10
-                                }}>{'来自：【' + item.area + '】【' + item.alarmname + '】'}</Text>
+                                }}>{TextGroup.comeFrom+'：【' + item.area + '】【' + item.alarmname + '】'}</Text>
 
                             </TouchableOpacity>
                             }
